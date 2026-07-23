@@ -197,7 +197,7 @@ def footer_html():
           </div>
           <div>
             <h4>Voor wie</h4>
-            <ul>%(doelgroep)s</ul>
+            <ul>%(doelgroep)s<li><a href="https://hieon.nl">HIEON: heb ik onderzoek nodig?</a></li></ul>
             <h4 style="margin-top:26px">Contact</h4>
             <ul>
               <li><a href="mailto:%(email)s">%(email)s</a></li>
