@@ -181,7 +181,7 @@ def footer_html():
       <div class="wrap">
         <div class="footer__grid">
           <div>
-            <div class="footer__logo"><img src="/assets/img/logo.jpg" alt="%(name)s" width="220" height="110"></div>
+            <a class="footer__wordmark" href="/" aria-label="%(name)s, naar de homepage">Van Der Ham<span>Ecologie</span></a>
             <p>Ecologisch adviesbureau gespecialiseerd in flora- en faunawerkzaamheden,
                inventarisaties en ecologische begeleiding. Met ervaring bij waterschappen
                en terreinbeherende organisaties.</p>
@@ -224,6 +224,41 @@ def footer_html():
         "advies": ul(onderzoek_advies),
         "doelgroep": ul([(h, "Voor " + l.lower()) for h, l in DOELGROEPEN]),
     }
+
+
+def aside_html():
+    """Meelopende contact-/offertekaart naast de lopende tekst."""
+    return """<aside class="article__aside">
+      <div class="aside-card">
+        <p class="aside-card__title">Direct aan de slag</p>
+        <p>Vraag vrijblijvend een offerte aan of overleg eerst even wat er in uw situatie nodig is.</p>
+        <a class="btn btn--primary btn--sm" href="/contact">Offerte aanvragen %(arrow)s</a>
+        <dl class="aside-card__contact">
+          <div><dt>Bellen</dt><dd><a href="tel:%(phone_link)s">%(phone)s</a></dd></div>
+          <div><dt>Reactie</dt><dd>Binnen 24 uur</dd></div>
+          <div><dt>Werkgebied</dt><dd>Heel Nederland</dd></div>
+        </dl>
+      </div>
+    </aside>""" % {
+        "arrow": ARROW,
+        "phone_link": SITE["phone_link"],
+        "phone": SITE["phone"],
+        "email": SITE["email"],
+    }
+
+
+# De lopende-tekstkolom naast de contactkaart zetten (tweekoloms-artikel).
+_PROSE_BLOCK = re.compile(
+    r'<div class="wrap">\s*<div class="prose">(.*?)</div>\s*</div>', re.S
+)
+
+
+def wrap_prose(html):
+    def repl(m):
+        return ('<div class="wrap"><div class="article">'
+                '<div class="prose">%s</div>%s</div></div>'
+                % (m.group(1), aside_html()))
+    return _PROSE_BLOCK.sub(repl, html, count=1)
 
 
 def parse_page(path):
@@ -295,6 +330,9 @@ def build():
             "arrow": ARROW,
         }.items():
             html = html.replace("{{%s}}" % key, str(value))
+
+        # Lopende-tekstpagina's een meelopende contactkaart geven.
+        html = wrap_prose(html)
 
         # Interne links relatief maken, zodat de site zowel op de root
         # (eigen domein) als op een submap (github.io-preview) werkt.
