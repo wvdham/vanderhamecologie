@@ -646,6 +646,24 @@ a:hover { color: var(--green-deep); }
 .prose li::marker { color: var(--green-soft); }
 .prose strong { font-weight: 600; }
 
+/* opsommende kopje-plus-zinnetje-reeksen als kaartraster */
+.prose .minigrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: 1rem;
+  margin: 1.6em 0;
+  text-align: left;
+}
+.minicard {
+  background: var(--cream);
+  border: 1px solid var(--cream-deep);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.4rem;
+}
+.minicard h3 { margin: 0 0 .3em; color: var(--green-deep); font-size: 1.1rem; }
+.minicard p { margin: 0; color: var(--ink-soft); font-size: .95rem; }
+.minicard p + p { margin-top: .4em; }
+
 /* koppen die naar een dienstpagina linken */
 .prose h3 a.prose-link {
   color: inherit;

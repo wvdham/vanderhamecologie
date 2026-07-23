@@ -245,6 +245,76 @@ def inject_eyebrow(html, meta):
     return _H1.sub(lambda m: m.group(1) + pill + "\n    " + m.group(2), html, count=1)
 
 
+_BLOCK = re.compile(r'(?is)<(h2|h3|p|ul|ol)\b[^>]*>.*?</\1>')
+_TXT = re.compile(r'(?is)<[^>]+>')
+
+
+def _plain_len(html):
+    return len(_TXT.sub('', html).strip())
+
+
+def enrich_prose(inner):
+    """Zet rijtjes 'kopje + kort zinnetje' om naar een kaartraster.
+
+    Veel dienstpagina's bestaan uit reeksen van een <h3> met een korte
+    <p> eronder. Los leest dat als een lang document; als kaartjes in een
+    raster oogt het als de rest van de site. Alleen korte, opsommende
+    reeksen worden omgezet; echte tekstsecties blijven ongemoeid.
+    """
+    blocks = [(m.group(1).lower(), m.group(0)) for m in _BLOCK.finditer(inner)]
+    if not blocks:
+        return inner
+
+    # Bouw 'units': een h3 met de eropvolgende korte alinea's.
+    units, i = [], 0
+    while i < len(blocks):
+        tag, html = blocks[i]
+        if tag == "h3":
+            ps, j = [], i + 1
+            while j < len(blocks) and blocks[j][0] == "p":
+                ps.append(blocks[j][1])
+                j += 1
+            total = _plain_len(html) + sum(_plain_len(p) for p in ps)
+            cardable = 1 <= len(ps) <= 2 and total <= 240 and "<a " not in html
+            units.append({"kind": "unit", "cardable": cardable, "h3": html, "ps": ps})
+            i = j
+        else:
+            units.append({"kind": "block", "html": html})
+            i += 1
+
+    out, k = [], 0
+    while k < len(units):
+        u = units[k]
+        if u["kind"] == "unit" and u["cardable"]:
+            run = []
+            while k < len(units) and units[k].get("cardable"):
+                run.append(units[k])
+                k += 1
+            if len(run) >= 2:
+                cards = "".join(
+                    '<div class="minicard">%s%s</div>' % (r["h3"], "".join(r["ps"]))
+                    for r in run
+                )
+                out.append('<div class="minigrid">%s</div>' % cards)
+            else:
+                r = run[0]
+                out.append(r["h3"] + "".join(r["ps"]))
+        elif u["kind"] == "unit":
+            out.append(u["h3"] + "".join(u["ps"]))
+            k += 1
+        else:
+            out.append(u["html"])
+            k += 1
+    return "\n".join(out)
+
+
+_PROSE = re.compile(r'(?is)(<div class="prose">)(.*?)(</div>)')
+
+
+def enrich_prose_in(html):
+    return _PROSE.sub(lambda m: m.group(1) + enrich_prose(m.group(2)) + m.group(3), html, count=1)
+
+
 def parse_page(path):
     """Splitst een contentbestand in frontmatter-dict en HTML-body."""
     raw = open(path, encoding="utf-8").read()
@@ -317,6 +387,9 @@ def build():
 
         # Eyebrow-pill in de paginakop zetten (indien opgegeven).
         html = inject_eyebrow(html, meta)
+
+        # Opsommende kopje-plus-zinnetje-reeksen omzetten naar kaartjes.
+        html = enrich_prose_in(html)
 
         # Lopende tekst centreren op de pagina (geen stijve zijbalk meer).
         html = html.replace('<div class="prose">', '<div class="prose prose--center">')
