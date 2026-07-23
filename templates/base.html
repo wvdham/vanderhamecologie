@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{title}}</title>
+<meta name="description" content="{{description}}">
+<link rel="canonical" href="{{canonical}}">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="{{sitename}}">
+<meta property="og:title" content="{{title}}">
+<meta property="og:description" content="{{description}}">
+<meta property="og:url" content="{{canonical}}">
+<meta property="og:image" content="{{og_image}}">
+<meta property="og:locale" content="nl_NL">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="icon" href="/assets/img/logo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=Lora:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="/assets/css/site.css">
+{{schema}}
+</head>
+<body>
+<a class="skip" href="#inhoud">Naar de inhoud</a>
+
+<header class="header" id="siteheader">
+  <div class="header__inner">
+    <a class="header__logo" href="/" aria-label="{{sitename}}, naar de homepage">
+      <img src="/assets/img/logo.jpg" alt="{{sitename}}" width="220" height="110">
+    </a>
+
+    <button class="burger" type="button" aria-label="Menu openen" aria-expanded="false" aria-controls="hoofdmenu">
+      <i></i>
+    </button>
+
+    {{nav}}
+
+    <div class="header__cta">
+      <a class="btn btn--primary btn--sm" href="/contact">Neem direct contact op</a>
+    </div>
+  </div>
+</header>
+
+<main id="inhoud">
+{{content}}
+</main>
+
+{{footer}}
+
+<script>
+(function () {
+  var header = document.getElementById('siteheader');
+  var burger = header.querySelector('.burger');
+  var items = header.querySelectorAll('[data-dropdown]');
+  var desktop = window.matchMedia('(min-width: 861px)');
+
+  function closeAll(except) {
+    items.forEach(function (item) {
+      if (item === except) return;
+      item.classList.remove('nav__item--open');
+      item.querySelector('.nav__link').setAttribute('aria-expanded', 'false');
+    });
+  }
+
+  items.forEach(function (item) {
+    var button = item.querySelector('.nav__link');
+    button.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var open = item.classList.toggle('nav__item--open');
+      button.setAttribute('aria-expanded', open ? 'true' : 'false');
+      closeAll(item);
+    });
+    item.addEventListener('mouseenter', function () {
+      if (desktop.matches) {
+        closeAll(item);
+        item.classList.add('nav__item--open');
+        button.setAttribute('aria-expanded', 'true');
+      }
+    });
+    item.addEventListener('mouseleave', function () {
+      if (desktop.matches) {
+        item.classList.remove('nav__item--open');
+        button.setAttribute('aria-expanded', 'false');
+      }
+    });
+  });
+
+  burger.addEventListener('click', function () {
+    var open = header.classList.toggle('header--open');
+    burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    burger.setAttribute('aria-label', open ? 'Menu sluiten' : 'Menu openen');
+    if (!open) closeAll(null);
+  });
+
+  document.addEventListener('click', function (e) {
+    if (!header.contains(e.target)) {
+      closeAll(null);
+      header.classList.remove('header--open');
+      burger.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      closeAll(null);
+      header.classList.remove('header--open');
+      burger.setAttribute('aria-expanded', 'false');
+    }
+  });
+})();
+
+/* Contactformulier: versturen zonder de pagina te verlaten.
+   Zonder JavaScript werkt het formulier gewoon als gewone POST. */
+(function () {
+  var form = document.getElementById('contactformulier');
+  if (!form) return;
+  var status = document.getElementById('formulier-status');
+  var knop = form.querySelector('button[type="submit"]');
+  var knopTekst = knop ? knop.innerHTML : '';
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (knop) { knop.disabled = true; knop.textContent = 'Versturen...'; }
+    status.style.color = '';
+    status.textContent = '';
+
+    fetch(form.action, {
+      method: 'POST',
+      headers: { 'Accept': 'application/json' },
+      body: new FormData(form)
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data.success) {
+          form.reset();
+          status.style.color = 'var(--green)';
+          status.textContent = 'Bedankt, uw bericht is verstuurd. Wij reageren binnen 24 uur.';
+        } else {
+          throw new Error(data.message || 'Versturen mislukt');
+        }
+      })
+      .catch(function () {
+        status.style.color = '#8B2E2E';
+        status.innerHTML = 'Het versturen lukte niet. Mail ons direct op ' +
+          '<a href="mailto:{{email}}">{{email}}</a> of bel {{phone}}.';
+      })
+      .then(function () {
+        if (knop) { knop.disabled = false; knop.innerHTML = knopTekst; }
+      });
+  });
+})();
+</script>
+</body>
+</html>

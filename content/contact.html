@@ -1,0 +1,160 @@
+---
+title: Contact | Van Der Ham Ecologie, ecologisch adviesbureau
+description: Vraag een quickscan, flora- en faunacheck of aanvullend onderzoek aan. Direct contact met de ecoloog, reactie binnen 24 uur.
+---
+<section class="pagehead">
+  <div class="wrap">
+    <p class="crumbs"><a href="/">Home</a><span>/</span>Contact</p>
+    <h1>Even overleggen kan altijd</h1>
+    <p>Een offerte aanvragen of eerst sparren over wat er nodig is? U spreekt direct de ecoloog die uw project uitvoert. Wij reageren binnen 24 uur.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="split" style="align-items:start">
+      <div>
+        <h2>Stuur een bericht</h2>
+        <p class="lead" style="margin-bottom:2rem">Vertel kort wat u van plan bent en waar. Dan weet u snel of er onderzoek nodig is, en zo ja welk.</p>
+
+        <form class="form" id="contactformulier" method="POST" action="https://api.web3forms.com/submit">
+          <input type="hidden" name="access_key" value="c6e48889-f227-4692-9384-7782f3069a85">
+          <input type="hidden" name="subject" value="Nieuwe aanvraag via vanderhamecologie.nl">
+          <input type="hidden" name="from_name" value="Website Van Der Ham Ecologie">
+          <input type="checkbox" class="hp" name="botcheck" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+          <div class="form__row">
+            <div class="field">
+              <label for="naam">Naam</label>
+              <input id="naam" name="name" type="text" autocomplete="name" required placeholder="Uw volledige naam">
+            </div>
+            <div class="field">
+              <label for="email">E-mailadres</label>
+              <input id="email" name="email" type="email" autocomplete="email" required placeholder="uw@email.nl">
+            </div>
+          </div>
+
+          <div class="form__row">
+            <div class="field">
+              <label for="telefoon">Telefoon <span style="font-weight:400;color:var(--ink-soft)">(optioneel)</span></label>
+              <input id="telefoon" name="phone" type="tel" autocomplete="tel" placeholder="06-12345678">
+            </div>
+            <div class="field">
+              <label for="organisatie">Organisatie <span style="font-weight:400;color:var(--ink-soft)">(optioneel)</span></label>
+              <input id="organisatie" name="organization" type="text" autocomplete="organization" placeholder="Bedrijf of gemeente">
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="dienst">Waar gaat het over?</label>
+            <select id="dienst" name="service">
+              <option value="">Kies een dienst</option>
+              <option>Quickscan flora en fauna</option>
+              <option>Flora- en faunacheck</option>
+              <option>Aanvullend soortgericht onderzoek</option>
+              <option>Inventarisatie en monitoring</option>
+              <option>Ecologische begeleiding</option>
+              <option>Gebiedsbescherming of vergunning</option>
+              <option>Inrichtingsadvies</option>
+              <option>Iets anders</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="bericht">Uw vraag of project</label>
+            <textarea id="bericht" name="message" required placeholder="Wat bent u van plan, op welke locatie en wanneer? Hoe concreter, hoe gerichter ons antwoord."></textarea>
+            <p class="field__hint">Noem als het kan het adres en de geplande startdatum. Dan kunnen wij meteen zeggen of het seizoen haalbaar is.</p>
+          </div>
+
+          <div class="field">
+            <label style="font-weight:400;display:flex;gap:.6rem;align-items:flex-start">
+              <input type="checkbox" name="privacy" required style="width:auto;margin-top:.35rem">
+              <span>Ik ga akkoord met de verwerking van mijn gegevens volgens de <a href="/privacyverklaring">privacyverklaring</a>.</span>
+            </label>
+          </div>
+
+          <div>
+            <button class="btn btn--primary" type="submit">Verstuur bericht {{arrow}}</button>
+          </div>
+          <p class="form__note" id="formulier-status" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+
+      <div>
+        <div class="callout">
+          <h3>Direct contact</h3>
+          <dl class="contactlist" style="margin-top:1.25rem">
+            <div>
+              <dt>Telefoon</dt>
+              <dd><a href="tel:{{phone_link}}">{{phone}}</a></dd>
+            </div>
+            <div>
+              <dt>E-mail</dt>
+              <dd><a href="mailto:{{email}}">{{email}}</a></dd>
+            </div>
+            <div>
+              <dt>Werkgebied</dt>
+              <dd>Heel Nederland</dd>
+            </div>
+            <div>
+              <dt>Standplaats</dt>
+              <dd>Zeist, provincie Utrecht</dd>
+            </div>
+            <div>
+              <dt>Reactietijd</dt>
+              <dd>Binnen 24 uur</dd>
+            </div>
+          </dl>
+        </div>
+
+        <div style="margin-top:2rem">
+          <h3>Waarom Van Der Ham Ecologie</h3>
+          <ul style="padding-left:1.25em">
+            <li>Korte lijnen, u spreekt altijd dezelfde ecoloog</li>
+            <li>Brede soortkennis: entomologie, flora én vogels</li>
+            <li>Rapportages die aansluiten op de Omgevingswet</li>
+            <li>Ervaring bij waterschappen, Staatsbosbeheer, Natuurmonumenten en Limburgs Landschap</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section--cream">
+  <div class="wrap wrap--narrow">
+    <div class="head">
+      <h2>Veelgestelde vragen</h2>
+    </div>
+    <div class="faq">
+      <div class="faq__item">
+        <h3>Hoe snel kan ik een reactie verwachten?</h3>
+        <p>Wij reageren binnen 24 uur op vragen en offerteaanvragen. Heeft u haast, bel dan direct op <a href="tel:{{phone_link}}">{{phone}}</a>.</p>
+      </div>
+      <div class="faq__item">
+        <h3>Wat kost een quickscan of flora- en faunacheck?</h3>
+        <p>Dat hangt af van de omvang en complexiteit van het project. Elke situatie is anders, dus wij kijken eerst wat er werkelijk nodig is. U krijgt een vrijblijvende offerte waarin staat wat u wel en niet hoeft te laten onderzoeken.</p>
+      </div>
+      <div class="faq__item">
+        <h3>Hoe lang duurt het om een rapportage te ontvangen?</h3>
+        <p>Voor standaard flora- en faunachecks leveren wij kort na het veldbezoek, in overleg met u. Voor quickscans met uitgebreide juridische toetsing rekenen we een tot twee weken. Spoed is vaak bespreekbaar, als klein bureau kunnen wij snel schakelen.</p>
+      </div>
+      <div class="faq__item">
+        <h3>In welke regio's bent u actief?</h3>
+        <p>Wij werken door heel Nederland. De thuisbasis is Zeist, in de provincie Utrecht, centraal gelegen en goed bereikbaar.</p>
+      </div>
+      <div class="faq__item">
+        <h3>Kan ik ook voor spoedeisende projecten bij u terecht?</h3>
+        <p>Vaak wel. Bel ons direct om de mogelijkheden te bespreken. Let wel op: veel soortgericht onderzoek is seizoensgebonden. Als het onderzoeksseizoen voorbij is, kunnen wij dat niet inhalen.</p>
+      </div>
+      <div class="faq__item">
+        <h3>Werkt u ook voor particulieren of alleen voor bedrijven?</h3>
+        <p>Voor allebei. Wij werken voor particulieren met bouwplannen, voor waterschappen en gemeenten, en voor aannemers en ontwikkelaars.</p>
+      </div>
+      <div class="faq__item">
+        <h3>Wat gebeurt er na het indienen van een aanvraag?</h3>
+        <p>Wij nemen binnen 24 uur contact op en bespreken uw project telefonisch of per e-mail. Daarna ontvangt u een heldere, vrijblijvende offerte. Gaat u akkoord, dan plannen wij het veldbezoek of de werkzaamheden in.</p>
+      </div>
+    </div>
+  </div>
+</section>
