@@ -8,6 +8,7 @@ docs/ is de map die GitHub Pages publiceert.
 Draaien:  python3 build.py
 """
 
+import json
 import os
 import re
 import shutil
@@ -269,6 +270,55 @@ def trim_crumbs(html):
     return _CRUMBS.sub(fix, html, count=1)
 
 
+_CRUMB_LINK = re.compile(r'(?is)<a href="([^"]+)"[^>]*>(.*?)</a>')
+_TAGS = re.compile(r'(?is)<[^>]+>')
+
+
+def breadcrumb_ld(body, url):
+    """BreadcrumbList-markup uit de kruimels van de pagina.
+
+    De zichtbare breadcrumb laat de pagina zelf weg (zie trim_crumbs), maar in
+    de structured data hoort de huidige pagina er juist wél bij: dat is wat
+    Google nodig heeft om het kruimelpad in de zoekresultaten te tonen in
+    plaats van de kale URL. Pagina's zonder bovenliggende pagina krijgen niets,
+    want een pad van één stap zegt niets.
+    """
+    m = _CRUMBS.search(body)
+    if not m:
+        return ""
+    inner = m.group(1)
+
+    items = []
+    for href, label in _CRUMB_LINK.findall(inner):
+        naam = _TAGS.sub("", label).strip()
+        pad = SITE["url"] if href == "/" else SITE["url"] + "/" + href.strip("/")
+        items.append((naam, pad))
+
+    # De huidige pagina staat als platte tekst achter de laatste link, met het
+    # scheidingsteken ervoor. Dat streepje hoort niet in de naam.
+    eind = inner.rfind("</a>")
+    huidig = _TAGS.sub("", inner[eind + 4:]).strip().lstrip("/").strip() if eind != -1 else ""
+    if huidig:
+        items.append((huidig, url))
+
+    # Alleen markup waar ook een zichtbare breadcrumb staat: dat is Home plus
+    # ten minste één bovenliggende pagina, plus de pagina zelf. Structured data
+    # die niets op de pagina weerspiegelt, wil je niet.
+    if len(items) < 3:
+        return ""
+
+    data = {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {"@type": "ListItem", "position": i, "name": naam, "item": pad}
+            for i, (naam, pad) in enumerate(items, 1)
+        ],
+    }
+    return ('\n<script type="application/ld+json">\n%s\n</script>'
+            % json.dumps(data, ensure_ascii=False))
+
+
 _BLOCK = re.compile(r'(?is)<(h2|h3|p|ul|ol)\b[^>]*>.*?</\1>')
 _TXT = re.compile(r'(?is)<[^>]+>')
 
@@ -400,7 +450,7 @@ def build():
             "nav": nav_html(slug),
             "footer": footer_html(),
             "content": body,
-            "schema": schema_ld(meta, url),
+            "schema": schema_ld(meta, url) + breadcrumb_ld(body, url),
             "phone": SITE["phone"],
             "phone_link": SITE["phone_link"],
             "email": SITE["email"],
