@@ -19,6 +19,12 @@ CONTENT = os.path.join(ROOT, "content")
 TEMPLATES = os.path.join(ROOT, "templates")
 OUT = os.path.join(ROOT, "docs")
 
+# Zet dit op "www.vanderhamecologie.nl" op het moment van de DNS-overstap.
+# Zolang het None is, draait de site testbaar op de github.io-URL en wordt
+# er geen CNAME-bestand geschreven (anders leidt github.io door naar het
+# eigen domein, dat nog bij landingsite hangt).
+CUSTOM_DOMAIN = None
+
 SITE = {
     "name": "Van Der Ham Ecologie",
     "url": "https://www.vanderhamecologie.nl",
@@ -290,6 +296,13 @@ def build():
         }.items():
             html = html.replace("{{%s}}" % key, str(value))
 
+        # Interne links relatief maken, zodat de site zowel op de root
+        # (eigen domein) als op een submap (github.io-preview) werkt.
+        # Alle pagina's zitten één niveau diep (/, of /slug/), dus de
+        # basis is "./" op de homepage en "../" op de binnenpagina's.
+        basis = "./" if slug == "/" else "../"
+        html = re.sub(r'(href|src)="/(?!/)', r'\1="' + basis, html)
+
         target = OUT if slug == "/" else os.path.join(OUT, slug.strip("/"))
         os.makedirs(target, exist_ok=True)
         with open(os.path.join(target, "index.html"), "w", encoding="utf-8") as f:
@@ -310,12 +323,19 @@ def build():
     with open(os.path.join(OUT, "robots.txt"), "w", encoding="utf-8") as f:
         f.write("User-agent: *\nAllow: /\n\nSitemap: %s/sitemap.xml\n" % SITE["url"])
 
-    # GitHub Pages: geen Jekyll-verwerking, en het eigen domein vastleggen.
+    # GitHub Pages: geen Jekyll-verwerking.
     open(os.path.join(OUT, ".nojekyll"), "w").close()
-    with open(os.path.join(OUT, "CNAME"), "w") as f:
-        f.write("www.vanderhamecologie.nl\n")
 
-    print("%d pagina's gebouwd naar docs/" % len(pages))
+    # Eigen domein alleen vastleggen als de overstap gemaakt is.
+    cname_pad = os.path.join(OUT, "CNAME")
+    if CUSTOM_DOMAIN:
+        with open(cname_pad, "w") as f:
+            f.write(CUSTOM_DOMAIN + "\n")
+    elif os.path.exists(cname_pad):
+        os.remove(cname_pad)
+
+    print("%d pagina's gebouwd naar docs/ (custom domain: %s)"
+          % (len(pages), CUSTOM_DOMAIN or "nog niet, github.io-preview"))
     missing = [u for u, _ in pages if "  " in u]
     if missing:
         print("let op:", missing)
