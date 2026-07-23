@@ -352,20 +352,133 @@ a:hover { color: var(--green-deep); }
   font-style: italic;
 }
 
-/* paginakop voor binnenpagina's */
+/* paginakop voor binnenpagina's, gecentreerd en warm */
 .pagehead {
+  background:
+    radial-gradient(120% 140% at 50% -20%, var(--cream) 0%, var(--cream-deep) 100%);
+  color: var(--ink);
+  padding-block: clamp(2.75rem, 6vw, 4.75rem);
+  text-align: center;
+  border-bottom: 1px solid var(--cream-deep);
+}
+.pagehead > .wrap { max-width: 780px; }
+.pagehead__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: .45em;
+  padding: .4rem 1rem;
+  margin-bottom: 1.1rem;
+  border: 1px solid var(--green-soft);
+  border-radius: 999px;
+  background: rgb(255 255 255 / .5);
+  font-size: .8rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  color: var(--green-deep);
+}
+.pagehead h1 { color: var(--ink); margin-inline: auto; }
+.pagehead p { color: var(--ink-soft); max-width: 60ch; font-size: 1.15rem; margin: .2em auto 0; }
+.pagehead .btn { margin-top: 1.85rem; }
+
+.crumbs { font-size: .84rem; color: var(--ink-soft); margin-bottom: 1.1rem; }
+.crumbs a { color: var(--ink-soft); text-decoration: none; }
+.crumbs a:hover { color: var(--green); text-decoration: underline; }
+.crumbs span { padding-inline: .45em; opacity: .5; }
+
+/* Gecentreerde sectiekop (zoals de oude site) */
+.head--center { margin-inline: auto; text-align: center; }
+.head--center p { margin-inline: auto; }
+
+/* ---------- fotokaarten (dienstenraster met beeld) ---------- */
+
+.cardgrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+  gap: clamp(1.25rem, 2.5vw, 2rem);
+}
+
+.photocard {
+  display: flex;
+  flex-direction: column;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-l);
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  transition: transform .35s var(--ease), box-shadow .35s var(--ease), border-color .35s var(--ease);
+}
+.photocard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 26px 50px -24px rgb(27 32 22 / .35);
+  border-color: var(--green-soft);
+  color: inherit;
+}
+.photocard__img { aspect-ratio: 16 / 10; width: 100%; object-fit: cover; background: var(--cream-deep); }
+.photocard__body { padding: 1.5rem 1.6rem 1.7rem; display: flex; flex-direction: column; flex: 1; }
+.photocard__body h3 { margin-bottom: .4em; }
+.photocard__body p { color: var(--ink-soft); font-size: .97rem; margin: 0; }
+.photocard__more {
+  margin-top: 1.1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: .4em;
+  font-weight: 600;
+  color: var(--green);
+}
+.photocard__more svg { transition: transform .35s var(--ease); }
+.photocard:hover .photocard__more svg { transform: translateX(4px); }
+
+/* ---------- periode-/timingkaarten ---------- */
+
+.timinggrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: clamp(1.25rem, 2.5vw, 1.75rem);
+}
+.timingcard {
+  text-align: center;
+  padding: 2rem 1.5rem;
+  background: var(--cream);
+  border: 1px solid var(--cream-deep);
+  border-radius: var(--radius-l);
+}
+.timingcard__icon {
+  width: 58px; height: 58px;
+  margin: 0 auto 1.1rem;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  background: var(--green);
+  color: #fff;
+}
+.timingcard h3 { margin-bottom: .7rem; }
+.timingcard__badge {
+  display: inline-block;
+  padding: .4rem 1.1rem;
+  border-radius: 999px;
+  background: var(--green);
+  color: #fff;
+  font-weight: 700;
+  font-size: .92rem;
+  margin-bottom: .9rem;
+}
+.timingcard p { color: var(--ink-soft); font-size: .95rem; margin: 0; }
+
+/* ---------- gekleurde attentieband ---------- */
+
+.band {
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-start;
+  padding: clamp(1.5rem, 3vw, 2.25rem);
+  border-radius: var(--radius-l);
   background: var(--green-dark);
   color: var(--ink-onDark);
-  padding-block: clamp(2.75rem, 6vw, 4.5rem);
 }
-.pagehead h1 { color: var(--ink-onDark); max-width: 20ch; }
-.pagehead p { color: var(--ink-onDark-soft); max-width: 58ch; font-size: 1.1rem; margin-bottom: 0; }
-.pagehead .btn { margin-top: 1.75rem; }
-
-.crumbs { font-size: .84rem; color: var(--ink-onDark-soft); margin-bottom: 1.25rem; }
-.crumbs a { color: var(--ink-onDark-soft); text-decoration: none; }
-.crumbs a:hover { color: var(--white); text-decoration: underline; }
-.crumbs span { padding-inline: .45em; opacity: .45; }
+.band__icon { flex: none; width: 40px; height: 40px; color: var(--green-bright); }
+.band h3 { color: var(--ink-onDark); margin-bottom: .35em; }
+.band p { color: var(--ink-onDark-soft); margin: 0; }
+.band p + p { margin-top: .6em; }
 
 /* ---------- dienstenregister ---------- */
 
@@ -507,14 +620,15 @@ a:hover { color: var(--green-deep); }
 /* ---------- lopende tekst ---------- */
 
 .prose { max-width: var(--maxw-text); }
+.prose--center { margin-inline: auto; }
 .prose > * + * { margin-top: 1.1em; }
-.prose > p:first-of-type { font-size: 1.15rem; line-height: 1.6; color: var(--ink); }
+.prose > p:first-of-type { font-size: 1.18rem; line-height: 1.6; color: var(--ink); }
 .prose h2 {
   margin-top: 2.4em;
-  padding-top: 1.3em;
-  border-top: 1px solid var(--line);
+  color: var(--ink);
+  text-align: center;
 }
-.prose h2:first-child, .prose > h2:first-of-type:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
+.prose h2:first-child { margin-top: 0; }
 .prose h3 { margin-top: 1.7em; color: var(--green-deep); }
 .prose ul, .prose ol { padding-left: 1.25em; margin-block: 0 1.15em; }
 .prose li { margin-bottom: .45em; }

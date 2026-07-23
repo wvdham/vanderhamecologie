@@ -226,39 +226,23 @@ def footer_html():
     }
 
 
-def aside_html():
-    """Meelopende contact-/offertekaart naast de lopende tekst."""
-    return """<aside class="article__aside">
-      <div class="aside-card">
-        <p class="aside-card__title">Direct aan de slag</p>
-        <p>Vraag vrijblijvend een offerte aan of overleg eerst even wat er in uw situatie nodig is.</p>
-        <a class="btn btn--primary btn--sm" href="/contact">Offerte aanvragen %(arrow)s</a>
-        <dl class="aside-card__contact">
-          <div><dt>Bellen</dt><dd><a href="tel:%(phone_link)s">%(phone)s</a></dd></div>
-          <div><dt>Reactie</dt><dd>Binnen 24 uur</dd></div>
-          <div><dt>Werkgebied</dt><dd>Heel Nederland</dd></div>
-        </dl>
-      </div>
-    </aside>""" % {
-        "arrow": ARROW,
-        "phone_link": SITE["phone_link"],
-        "phone": SITE["phone"],
-        "email": SITE["email"],
-    }
+def eyebrow_html(meta):
+    """Pill boven de paginatitel, alleen als de frontmatter een eyebrow geeft."""
+    tekst = meta.get("eyebrow")
+    if not tekst:
+        return ""
+    return '<p class="pagehead__eyebrow">%s</p>' % tekst
 
 
-# De lopende-tekstkolom naast de contactkaart zetten (tweekoloms-artikel).
-_PROSE_BLOCK = re.compile(
-    r'<div class="wrap">\s*<div class="prose">(.*?)</div>\s*</div>', re.S
-)
+# De eyebrow vlak vóór de <h1> in de paginakop zetten.
+_H1 = re.compile(r'(<section class="pagehead">.*?)(<h1>)', re.S)
 
 
-def wrap_prose(html):
-    def repl(m):
-        return ('<div class="wrap"><div class="article">'
-                '<div class="prose">%s</div>%s</div></div>'
-                % (m.group(1), aside_html()))
-    return _PROSE_BLOCK.sub(repl, html, count=1)
+def inject_eyebrow(html, meta):
+    pill = eyebrow_html(meta)
+    if not pill:
+        return html
+    return _H1.sub(lambda m: m.group(1) + pill + "\n    " + m.group(2), html, count=1)
 
 
 def parse_page(path):
@@ -331,8 +315,11 @@ def build():
         }.items():
             html = html.replace("{{%s}}" % key, str(value))
 
-        # Lopende-tekstpagina's een meelopende contactkaart geven.
-        html = wrap_prose(html)
+        # Eyebrow-pill in de paginakop zetten (indien opgegeven).
+        html = inject_eyebrow(html, meta)
+
+        # Lopende tekst centreren op de pagina (geen stijve zijbalk meer).
+        html = html.replace('<div class="prose">', '<div class="prose prose--center">')
 
         # Interne links relatief maken, zodat de site zowel op de root
         # (eigen domein) als op een submap (github.io-preview) werkt.
