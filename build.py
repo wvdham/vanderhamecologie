@@ -245,6 +245,30 @@ def inject_eyebrow(html, meta):
     return _H1.sub(lambda m: m.group(1) + pill + "\n    " + m.group(2), html, count=1)
 
 
+_CRUMBS = re.compile(r'(?is)<p class="crumbs">(.*?)</p>')
+
+
+def trim_crumbs(html):
+    """Laat de breadcrumb alleen de weg naar de pagina zien, niet de pagina zelf.
+
+    De laatste kruimel was steeds dezelfde tekst als de <h1> eronder, wat de
+    paginakop onnodig druk maakte. We knippen alles na de laatste link weg.
+    Blijft er alleen nog "Home" over, dan voegt de breadcrumb niets toe en
+    verdwijnt hij helemaal.
+    """
+    def fix(m):
+        inner = m.group(1)
+        eind = inner.rfind("</a>")
+        if eind == -1:
+            return ""
+        inner = inner[:eind + 4]
+        if inner.count("<a ") <= 1:
+            return ""
+        return '<p class="crumbs">%s</p>' % inner
+
+    return _CRUMBS.sub(fix, html, count=1)
+
+
 _BLOCK = re.compile(r'(?is)<(h2|h3|p|ul|ol)\b[^>]*>.*?</\1>')
 _TXT = re.compile(r'(?is)<[^>]+>')
 
@@ -387,6 +411,9 @@ def build():
 
         # Eyebrow-pill in de paginakop zetten (indien opgegeven).
         html = inject_eyebrow(html, meta)
+
+        # Breadcrumb inkorten: alleen de weg ernaartoe, niet de pagina zelf.
+        html = trim_crumbs(html)
 
         # Opsommende kopje-plus-zinnetje-reeksen omzetten naar kaartjes.
         html = enrich_prose_in(html)
