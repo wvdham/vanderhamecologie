@@ -20,11 +20,9 @@ CONTENT = os.path.join(ROOT, "content")
 TEMPLATES = os.path.join(ROOT, "templates")
 OUT = os.path.join(ROOT, "docs")
 
-# Zet dit op "www.vanderhamecologie.nl" op het moment van de DNS-overstap.
-# Zolang het None is, draait de site testbaar op de github.io-URL en wordt
-# er geen CNAME-bestand geschreven (anders leidt github.io door naar het
-# eigen domein, dat nog bij landingsite hangt).
-CUSTOM_DOMAIN = None
+# Het eigen domein. GitHub Pages leest dit uit docs/CNAME en stuurt de
+# apex (vanderhamecologie.nl) automatisch door naar www.
+CUSTOM_DOMAIN = "www.vanderhamecologie.nl"
 
 SITE = {
     "name": "Van Der Ham Ecologie",
