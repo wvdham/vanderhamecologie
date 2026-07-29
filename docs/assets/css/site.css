@@ -789,20 +789,7 @@ a:hover { color: var(--green-deep); }
 
 :focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
 
-/* ---------- beweging ---------- */
-
-@keyframes rise {
-  from { opacity: 0; transform: translateY(14px); }
-  to   { opacity: 1; transform: none; }
-}
-/* De inhoud is standaard zichtbaar; de animatie voegt alleen toe. */
-.hero h1, .hero__sub, .hero__actions, .hero__aside, .hero__figure {
-  animation: rise .85s var(--ease) backwards;
-}
-.hero__sub { animation-delay: .07s; }
-.hero__actions { animation-delay: .14s; }
-.hero__aside { animation-delay: .21s; }
-.hero__figure { animation-delay: .1s; }
+/* De beweging staat gebundeld onderaan dit bestand. */
 
 /* ---------- responsief ---------- */
 
@@ -886,6 +873,104 @@ a:hover { color: var(--green-deep); }
   .step::before { font-size: 1.15rem; }
 }
 
+/* ==========================================================================
+   Beweging
+
+   Uitgangspunt: één gechoreografeerd moment bij het openen van een pagina,
+   daarna rust. Geen fade-in op elke sectie, want dat leest als sjabloon en
+   houdt de lezer onnodig op.
+
+   Alles wat met scrollen te maken heeft, zit achter @supports en achter
+   een no-preference-vraag. Kan de browser het niet, of wil de bezoeker
+   geen beweging, dan staat de inhoud er gewoon. Nooit tekst die pas
+   verschijnt als een animatie draait.
+   ========================================================================== */
+
+/* Geen van deze keyframes raakt opacity.
+
+   Reden: browsers pauzeren animaties in een tab die niet zichtbaar is, en
+   dat is precies hoe link-previews van WhatsApp, Slack en LinkedIn een
+   pagina renderen. Een animatie die op opacity 0 begint, blijft daar dan
+   staan en levert een lege voorvertoning op. Beweging mag pauzeren,
+   leesbaarheid niet. */
+
+@keyframes rise {
+  from { transform: translateY(1.25rem); }
+  to   { transform: none; }
+}
+
+@keyframes settle {
+  from { transform: scale(1.03); }
+  to   { transform: none; }
+}
+
+@keyframes lift {
+  from { transform: translateY(1rem); }
+  to   { transform: none; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+
+  /* --- de opening van een pagina --------------------------------------- */
+
+  .hero h1, .hero__sub, .hero__actions, .hero__aside,
+  .pagehead .wrap > * {
+    animation: rise .8s var(--ease) backwards;
+  }
+  .hero__sub                                      { animation-delay: .07s; }
+  .hero__actions                                  { animation-delay: .14s; }
+  .hero__aside                                    { animation-delay: .21s; }
+  .pagehead h1                                    { animation-delay: .06s; }
+  .pagehead .wrap > p:not(.crumbs)                { animation-delay: .12s; }
+  .pagehead .btn                                  { animation-delay: .18s; }
+
+  .hero__figure {
+    animation: settle .9s var(--ease) backwards;
+    animation-delay: .1s;
+  }
+
+  /* --- in beeld komen --------------------------------------------------- */
+  /* Alleen voor beeldrijke rasters, niet voor losse tekstsecties. */
+
+  @supports (animation-timeline: view()) {
+    /* Alleen verschuiven, niet vervagen. Draait de animatie om welke reden
+       dan ook niet, dan staat de inhoud er voluit; er is geen enkele stand
+       waarin tekst onzichtbaar is. */
+    .photocard,
+    .timingcard,
+    .entry {
+      animation: lift .6s var(--ease) both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 38%;
+    }
+
+    /* Binnen één raster loopt het na elkaar, niet allemaal tegelijk. */
+    .photocard:nth-child(2), .timingcard:nth-child(2) { animation-delay: .05s; }
+    .photocard:nth-child(3), .timingcard:nth-child(3) { animation-delay: .1s; }
+
+    /* De kop krimpt mee zodra je begint te scrollen. */
+    .header {
+      animation: shrink linear both;
+      animation-timeline: scroll();
+      animation-range: 0 6rem;
+    }
+    @keyframes shrink {
+      to { box-shadow: 0 1px 16px rgb(27 32 22 / .09); }
+    }
+  }
+
+  /* --- fotokaarten ------------------------------------------------------ */
+  /* De kaart licht op, de foto zoomt een fractie in. Subtiel: het is een
+     veldgids, geen etalage. */
+
+  .photocard__img { transition: transform .5s var(--ease-soft); }
+  .photocard:hover .photocard__img,
+  .photocard:focus-visible .photocard__img { transform: scale(1.035); }
+
+  .entry__thumb { transition: transform .45s var(--ease-soft); }
+  .entry:hover .entry__thumb { transform: scale(1.05); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after {
@@ -894,4 +979,5 @@ a:hover { color: var(--green-deep); }
     transition-duration: .01ms !important;
   }
   .path:hover, .entry:hover { transform: none; }
+  .photocard:hover .photocard__img, .entry:hover .entry__thumb { transform: none; }
 }
