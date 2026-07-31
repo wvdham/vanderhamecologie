@@ -228,6 +228,26 @@ def verklein_thumbs(html):
     return _THUMB_IMG.sub(vervang, html)
 
 
+# Externe links (hieon.nl en wat er later bijkomt) openen in een nieuw tabblad,
+# zodat de bezoeker de site niet kwijtraakt. rel="noopener" hoort daarbij: het
+# voorkomt dat de geopende pagina via window.opener aan deze pagina kan komen.
+_EXTERN = re.compile(r'(?is)<a\s([^>]*href="https?://([^"/]+)[^"]*"[^>]*)>(.*?)</a>')
+
+
+def externe_links(html):
+    eigen = CUSTOM_DOMAIN.replace("www.", "")
+
+    def vervang(m):
+        attrs, host, tekst = m.group(1), m.group(2), m.group(3)
+        if eigen in host or "target=" in attrs.lower():
+            return m.group(0)
+        return ('<a %s target="_blank" rel="noopener">%s'
+                '<span class="sronly"> (opent in een nieuw tabblad)</span></a>'
+                % (attrs, tekst))
+
+    return _EXTERN.sub(vervang, html)
+
+
 def provincie_hub_html(slug, bestaande_slugs, dienst=None):
     """De provincielijst op een dienst-hoofdpagina, bijvoorbeeld /huismusonderzoek.
 
@@ -797,6 +817,9 @@ def build():
 
         # Lijstfoto's naar hun kleine variant laten wijzen.
         html = verklein_thumbs(html)
+
+        # Externe links in een nieuw tabblad.
+        html = externe_links(html)
 
         # Paginalinks krijgen een afsluitende slash, zodat een klik of een
         # crawl niet eerst een 301 hoeft te volgen. Bestanden (met extensie)
