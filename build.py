@@ -592,7 +592,11 @@ def build():
                 )
             else:
                 body += "\n" + links
-        url = SITE["url"] + ("" if slug == "/" else slug)
+        # Met afsluitende slash: GitHub Pages serveert /slug/ en stuurt /slug
+        # met een 301 daarheen. Canonical, og:url en sitemap moeten de URL
+        # noemen die zelf 200 geeft, anders staat de hele site in Search
+        # Console als "pagina met omleiding".
+        url = SITE["url"] + ("/" if slug == "/" else slug + "/")
 
         html = base
         for key, value in {
@@ -637,6 +641,18 @@ def build():
             with open(os.path.join(OUT, "404.html"), "w", encoding="utf-8") as f:
                 f.write(html)
             continue
+
+        # Paginalinks krijgen een afsluitende slash, zodat een klik of een
+        # crawl niet eerst een 301 hoeft te volgen. Bestanden (met extensie)
+        # en links met een anker blijven zoals ze zijn.
+        def _paginalink(m):
+            attr, pad = m.group(1), m.group(2)
+            laatste = pad.rstrip("/").rsplit("/", 1)[-1]
+            if pad and "#" not in pad and "?" not in pad and "." not in laatste:
+                pad = pad.rstrip("/") + "/"
+            return '%s="/%s"' % (attr, pad)
+
+        html = re.sub(r'(href|src)="/([^"]*)"', _paginalink, html)
 
         basis = "./" if slug == "/" else "../"
         html = re.sub(r'(href|src)="/(?!/)', r'\1="' + basis, html)
