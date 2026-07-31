@@ -499,6 +499,13 @@ def build():
     # GitHub Pages: geen Jekyll-verwerking.
     open(os.path.join(OUT, ".nojekyll"), "w").close()
 
+    # Browsers en bookmarkservices vragen /favicon.ico op de root op, ook als
+    # de pagina een <link> meegeeft. De root wordt bij elke build geleegd,
+    # dus de kopie hoort hier en niet in de map assets.
+    ico = os.path.join(OUT, "assets", "img", "favicon.ico")
+    if os.path.exists(ico):
+        shutil.copyfile(ico, os.path.join(OUT, "favicon.ico"))
+
     # Eigen domein alleen vastleggen als de overstap gemaakt is.
     cname_pad = os.path.join(OUT, "CNAME")
     if CUSTOM_DOMAIN:

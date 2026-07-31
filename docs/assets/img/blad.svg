@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Blad">
+  <rect width="64" height="64" rx="12" fill="#4C6B3C"/>
+  <!-- bladvorm: brede basis linksonder, punt rechtsboven -->
+  <path d="M49 13C49 13 20 12 12.5 27.5 5.5 42 15 52.5 15 52.5S25.5 55 36 47.5C47 39.5 49 13 49 13Z"
+        fill="#DAF4CF"/>
+  <!-- nerf -->
+  <path d="M45.5 16.5 16.5 51.5" stroke="#4C6B3C" stroke-width="3.2" stroke-linecap="round"/>
+</svg>
