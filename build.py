@@ -85,6 +85,81 @@ NAAST_WERK = [
     ("/projects#big-week", "Big Week"),
 ]
 
+# Provinciepagina's heten <dienst>-<provincie>. De volgorde hieronder is de
+# volgorde waarin de doorverwijzingen onderaan zo'n pagina verschijnen.
+PROVINCIES = [
+    ("gelderland", "Gelderland"),
+    ("utrecht", "Utrecht"),
+    ("overijssel", "Overijssel"),
+    ("noord-brabant", "Noord-Brabant"),
+    ("limburg", "Limburg"),
+    ("zuid-holland", "Zuid-Holland"),
+    ("noord-holland", "Noord-Holland"),
+    ("zeeland", "Zeeland"),
+    ("flevoland", "Flevoland"),
+    ("drenthe", "Drenthe"),
+    ("groningen", "Groningen"),
+    ("fryslan", "Fryslân"),
+]
+
+# Kop waaronder de doorverwijzingen komen te staan, per dienst.
+PROVINCIE_DIENSTEN = {
+    "quickscan-flora-en-fauna": "Quickscan",
+    "vleermuisonderzoek": "Vleermuisonderzoek",
+    "huismusonderzoek": "Huismusonderzoek",
+    "gierzwaluwonderzoek": "Gierzwaluwonderzoek",
+    "ecologisch-advies": "Ecologisch advies",
+}
+
+
+def split_provincie_slug(slug):
+    """Splitst '/huismusonderzoek-utrecht' in ('huismusonderzoek', 'utrecht')."""
+    naam = slug.strip("/")
+    for suffix, _ in PROVINCIES:
+        if naam.endswith("-" + suffix):
+            dienst = naam[: -len(suffix) - 1]
+            if dienst in PROVINCIE_DIENSTEN:
+                return dienst, suffix
+    return None, None
+
+
+def provincie_links_html(slug, bestaande_slugs):
+    """Chips naar dezelfde dienst in de andere provincies.
+
+    Alleen provincies waarvoor de pagina ook echt bestaat, zodat er nooit
+    naar een niet-bestaande pagina wordt gelinkt.
+    """
+    dienst, huidige = split_provincie_slug(slug)
+    if not dienst:
+        return ""
+    label = PROVINCIE_DIENSTEN[dienst]
+    chips = []
+    for suffix, naam in PROVINCIES:
+        if suffix == huidige:
+            continue
+        doel = "/%s-%s" % (dienst, suffix)
+        if doel in bestaande_slugs:
+            chips.append('<a class="provlink" href="%s">%s</a>' % (doel, naam))
+    if not chips:
+        return ""
+    return (
+        '<section class="section section--cream">\n'
+        '  <div class="wrap">\n'
+        '    <div class="head head--center">\n'
+        '      <h2>%s in andere provincies</h2>\n'
+        '    </div>\n'
+        '    <div class="provlinks" style="justify-content:center">%s</div>\n'
+        '  </div>\n'
+        '</section>\n\n' % (label, "".join(chips))
+    )
+
+
+# De kop stond op veel provinciepagina's zonder links eronder; de bouw zet er
+# nu altijd een complete, kloppende lijst neer (of haalt de kop weg).
+_PROV_KOP = re.compile(
+    r'(?is)<h3>[^<]*in andere provincies</h3>\s*(?:<p>(?:\s*<a href="/[^"]*"[^>]*>[^<]*</a>)+\s*</p>)?'
+)
+
 
 def nav_html(current):
     """Bouwt de hoofdnavigatie. `current` is het pad van de huidige pagina."""
@@ -430,13 +505,33 @@ def build():
             continue
         shutil.rmtree(p) if os.path.isdir(p) else os.remove(p)
 
+    bestanden = sorted(fn for fn in os.listdir(CONTENT) if fn.endswith(".html"))
+    bestaande_slugs = {"/" if fn == "index.html" else "/" + fn[:-5] for fn in bestanden}
+
     pages = []
-    for fn in sorted(os.listdir(CONTENT)):
-        if not fn.endswith(".html"):
-            continue
+    for fn in bestanden:
         meta, body = parse_page(os.path.join(CONTENT, fn))
         slug = "/" if fn == "index.html" else "/" + fn[:-5]
         meta["slug"] = slug
+        # 404.html hoort op de root en wordt door GitHub Pages getoond bij elke
+        # onbekende URL, ook diep in de site. De links erin blijven daarom
+        # absoluut en de pagina komt niet in de sitemap.
+        is_404 = fn == "404.html"
+
+        # Doorverwijzing naar dezelfde dienst in de andere provincies: de oude
+        # (vaak lege) kop weghalen en onderaan de lopende tekst een complete
+        # lijst neerzetten.
+        body = _PROV_KOP.sub("", body)
+        links = provincie_links_html(slug, bestaande_slugs)
+        if links:
+            # Als eigen sectie vlak vóór de afsluitende CTA, zodat de lopende
+            # tekst niet onderbroken wordt.
+            if '<section class="section cta">' in body:
+                body = body.replace(
+                    '<section class="section cta">', links + '<section class="section cta">', 1
+                )
+            else:
+                body += "\n" + links
         url = SITE["url"] + ("" if slug == "/" else slug)
 
         html = base
@@ -444,7 +539,7 @@ def build():
             "title": meta.get("title", SITE["name"]),
             "description": meta.get("description", ""),
             "canonical": url,
-            "og_image": SITE["url"] + "/assets/img/" + meta.get("og_image", "logo.jpg"),
+            "og_image": SITE["url"] + "/assets/img/" + meta.get("og_image", "og-default.jpg"),
             "nav": nav_html(slug),
             "footer": footer_html(),
             "content": body,
@@ -473,6 +568,16 @@ def build():
         # (eigen domein) als op een submap (github.io-preview) werkt.
         # Alle pagina's zitten één niveau diep (/, of /slug/), dus de
         # basis is "./" op de homepage en "../" op de binnenpagina's.
+        if is_404:
+            # Absolute links behouden: de pagina wordt op elk URL-niveau
+            # getoond, dus "../" zou naar de verkeerde map wijzen.
+            html = html.replace(
+                "</title>", "</title>\n<meta name=\"robots\" content=\"noindex\">", 1
+            )
+            with open(os.path.join(OUT, "404.html"), "w", encoding="utf-8") as f:
+                f.write(html)
+            continue
+
         basis = "./" if slug == "/" else "../"
         html = re.sub(r'(href|src)="/(?!/)', r'\1="' + basis, html)
 

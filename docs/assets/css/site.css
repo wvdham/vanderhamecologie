@@ -506,6 +506,30 @@ a:hover { color: var(--green-deep); }
 }
 .register__count { font-family: var(--font-body); font-size: .8rem; font-weight: 600; color: var(--ink-soft); letter-spacing: .04em; }
 
+/* doorverwijzing naar dezelfde dienst in andere provincies */
+.provlinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin-top: .35rem;
+}
+.provlink {
+  display: inline-block;
+  padding: .6rem .95rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--white);
+  font-size: .9rem;
+  font-weight: 500;
+  color: var(--ink);
+  text-decoration: none;
+  transition: border-color .3s var(--ease), background-color .3s var(--ease);
+}
+.provlink:hover, .provlink:focus-visible {
+  border-color: var(--green);
+  background: var(--cream);
+}
+
 .entry {
   display: grid;
   grid-template-columns: 84px minmax(0, 1fr) auto;
@@ -869,6 +893,19 @@ a:hover { color: var(--green-deep); }
   .entry__go { display: none; }
   .hero__actions .btn, .cta__actions .btn { width: 100%; justify-content: center; }
   .footer__grid { grid-template-columns: 1fr; }
+
+  /* Op een smal scherm bedekt het bijschrift bijna de halve foto. Het zakt
+     hier onder het beeld en de crop wordt wat hoger, zodat het onderwerp
+     in beeld blijft. */
+  .hero__figure img { aspect-ratio: 4 / 3; object-position: center; }
+  .hero__caption {
+    position: static;
+    padding: .6rem 0 0;
+    background: none;
+    backdrop-filter: none;
+    border-radius: 0;
+    color: var(--ink-onDark-soft);
+  }
   .step { grid-template-columns: 1fr; gap: .4rem; }
   .step::before { font-size: 1.15rem; }
 }
