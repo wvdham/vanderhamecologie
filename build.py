@@ -154,6 +154,46 @@ def provincie_links_html(slug, bestaande_slugs):
     )
 
 
+def provincie_hub_html(slug, bestaande_slugs, dienst=None):
+    """De provincielijst op een dienst-hoofdpagina, bijvoorbeeld /huismusonderzoek.
+
+    Handmatig bijgehouden lijsten raakten achterop zodra er een provincie
+    bijkwam, dus de bouw stelt ze samen uit de pagina's die er echt zijn.
+    Met `dienst` kan een pagina de lijst van een andere dienst opnemen; dat
+    gebeurt via {{provincies:<dienst>}} en is nodig voor ecologisch advies,
+    dat zelf geen hoofdpagina heeft.
+    """
+    dienst = dienst or slug.strip("/")
+    if dienst not in PROVINCIE_DIENSTEN:
+        return ""
+    label = PROVINCIE_DIENSTEN[dienst]
+    links = []
+    for suffix, naam in PROVINCIES:
+        doel = "/%s-%s" % (dienst, suffix)
+        if doel in bestaande_slugs:
+            links.append('      <a href="%s">%s {{arrow}}</a>' % (doel, naam))
+    if not links:
+        return ""
+    return (
+        '<section class="section section--cream">\n'
+        '  <div class="wrap">\n'
+        '    <div class="head head--center">\n'
+        '      <h2>%s per provincie</h2>\n'
+        '      <p>Wij werken door heel Nederland. Voor deze provincies hebben wij een aparte pagina.</p>\n'
+        '    </div>\n'
+        '    <div class="linkrow" style="justify-content:center">\n%s\n    </div>\n'
+        '  </div>\n'
+        '</section>\n\n' % (label, "\n".join(links))
+    )
+
+
+# De handmatige provinciesectie op een dienst-hoofdpagina; wordt vervangen door
+# de gegenereerde versie hierboven.
+_HUB_SECTIE = re.compile(
+    r'(?is)<section class="section">\s*<div class="wrap">\s*<div class="head head--center">\s*'
+    r'<h2>[^<]*per provincie</h2>.*?</section>\s*'
+)
+
 # De kop stond op veel provinciepagina's zonder links eronder; de bouw zet er
 # nu altijd een complete, kloppende lijst neer (of haalt de kop weg).
 _PROV_KOP = re.compile(
@@ -521,6 +561,26 @@ def build():
         # Doorverwijzing naar dezelfde dienst in de andere provincies: de oude
         # (vaak lege) kop weghalen en onderaan de lopende tekst een complete
         # lijst neerzetten.
+        # Dienst-hoofdpagina: de provincielijst opnieuw opbouwen, zodat een
+        # nieuwe provincie er vanzelf bij komt te staan.
+        hub = provincie_hub_html(slug, bestaande_slugs)
+        if hub:
+            if _HUB_SECTIE.search(body):
+                body = _HUB_SECTIE.sub(lambda m: hub, body, count=1)
+            elif '<section class="section cta">' in body:
+                body = body.replace(
+                    '<section class="section cta">', hub + '<section class="section cta">', 1
+                )
+            else:
+                body += "\n" + hub
+
+        # {{provincies:<dienst>}} op een willekeurige pagina.
+        body = re.sub(
+            r'\{\{provincies:([a-z-]+)\}\}',
+            lambda m: provincie_hub_html(slug, bestaande_slugs, m.group(1)),
+            body,
+        )
+
         body = _PROV_KOP.sub("", body)
         links = provincie_links_html(slug, bestaande_slugs)
         if links:
