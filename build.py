@@ -24,6 +24,24 @@ OUT = os.path.join(ROOT, "docs")
 # apex (vanderhamecologie.nl) automatisch door naar www.
 CUSTOM_DOMAIN = "www.vanderhamecologie.nl"
 
+# Bezoekersstatistiek, cookieloos. Leeg laten = geen enkel script op de site.
+# Vul PLAUSIBLE in met het domein zoals het in het dashboard heet
+# ("vanderhamecologie.nl"), of UMAMI met de scriptbron en de website-id.
+# Beide meten zonder cookies en zonder persoonsgegevens, dus er is geen
+# cookiebanner nodig. Zet er nooit Google Analytics bij zonder banner.
+PLAUSIBLE = ""
+UMAMI = {"src": "", "id": ""}
+
+
+def analytics_html():
+    if PLAUSIBLE:
+        return ('\n<script defer data-domain="%s" '
+                'src="https://plausible.io/js/script.js"></script>' % PLAUSIBLE)
+    if UMAMI.get("src") and UMAMI.get("id"):
+        return ('\n<script defer src="%s" data-website-id="%s"></script>'
+                % (UMAMI["src"], UMAMI["id"]))
+    return ""
+
 SITE = {
     "name": "Van Der Ham Ecologie",
     "url": "https://www.vanderhamecologie.nl",
@@ -152,6 +170,62 @@ def provincie_links_html(slug, bestaande_slugs):
         '  </div>\n'
         '</section>\n\n' % (label, "".join(chips))
     )
+
+
+# De dienstenlijstjes tonen een foto in een vakje van 84 bij 62 pixels, maar
+# laadden het origineel van 800 tot 1000 pixels breed: achttien daarvan is
+# bijna vier megabyte per pagina. De bouw maakt er een kleine variant van.
+THUMB = (210, 155)
+THUMB_MAP = os.path.join(OUT, "assets", "img", "thumbs")
+_THUMB_IMG = re.compile(r'(?is)<img class="entry__thumb"[^>]*>')
+_THUMB_SRC = re.compile(r'src="/assets/img/([^"/]+)"')
+
+
+def maak_thumb(bestandsnaam):
+    """Maakt (indien nodig) een kleine variant en geeft het pad terug.
+
+    Zonder Pillow gebeurt er niets en blijft het origineel staan; de bouw mag
+    hier niet op stuklopen.
+    """
+    bron = os.path.join(OUT, "assets", "img", bestandsnaam)
+    if not os.path.exists(bron):
+        return None
+    doel = os.path.join(THUMB_MAP, bestandsnaam)
+    if os.path.exists(doel) and os.path.getmtime(doel) >= os.path.getmtime(bron):
+        return "/assets/img/thumbs/" + bestandsnaam
+    try:
+        from PIL import Image
+    except ImportError:
+        return None
+    os.makedirs(THUMB_MAP, exist_ok=True)
+    im = Image.open(bron).convert("RGB")
+    bw, bh = im.size
+    schaal = max(THUMB[0] / bw, THUMB[1] / bh)
+    im = im.resize((max(1, round(bw * schaal)), max(1, round(bh * schaal))), Image.LANCZOS)
+    nw, nh = im.size
+    links, boven = (nw - THUMB[0]) // 2, (nh - THUMB[1]) // 2
+    im = im.crop((links, boven, links + THUMB[0], boven + THUMB[1]))
+    im.save(doel, quality=80, optimize=True, progressive=True)
+    return "/assets/img/thumbs/" + bestandsnaam
+
+
+def verklein_thumbs(html):
+    """Laat elke entry__thumb naar de kleine variant wijzen."""
+
+    def vervang(m):
+        tag = m.group(0)
+        s = _THUMB_SRC.search(tag)
+        if not s:
+            return tag
+        klein = maak_thumb(s.group(1))
+        if not klein:
+            return tag
+        tag = _THUMB_SRC.sub('src="%s"' % klein, tag, count=1)
+        tag = re.sub(r'width="\d+"', 'width="%d"' % THUMB[0], tag, count=1)
+        tag = re.sub(r'height="\d+"', 'height="%d"' % THUMB[1], tag, count=1)
+        return tag
+
+    return _THUMB_IMG.sub(vervang, html)
 
 
 def provincie_hub_html(slug, bestaande_slugs, dienst=None):
@@ -432,6 +506,83 @@ def breadcrumb_ld(body, url):
             % json.dumps(data, ensure_ascii=False))
 
 
+_FAQ_ITEM = re.compile(r'(?is)<div class="faq__item">(.*?)</div>')
+_FAQ_VRAAG = re.compile(r'(?is)<h3[^>]*>(.*?)</h3>')
+_FAQ_ANTWOORD = re.compile(r'(?is)<p[^>]*>(.*?)</p>')
+
+
+def faq_ld(body):
+    """FAQPage-markup uit de zichtbare vraag-en-antwoordblokken.
+
+    Alleen wat ook echt op de pagina staat: structured data die iets anders
+    beweert dan de bezoeker ziet, is in strijd met de richtlijnen van Google.
+    """
+    vragen = []
+    for blok in _FAQ_ITEM.findall(body):
+        v = _FAQ_VRAAG.search(blok)
+        antwoorden = _FAQ_ANTWOORD.findall(blok)
+        if not v or not antwoorden:
+            continue
+        vraag = _TAGS.sub("", v.group(1)).strip()
+        antwoord = " ".join(_TAGS.sub("", a).strip() for a in antwoorden).strip()
+        antwoord = re.sub(r"\s+", " ", antwoord)
+        if vraag and antwoord:
+            vragen.append((vraag, antwoord))
+    if len(vragen) < 2:
+        return ""
+    data = {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {"@type": "Question", "name": v,
+             "acceptedAnswer": {"@type": "Answer", "text": a}}
+            for v, a in vragen
+        ],
+    }
+    return ('\n<script type="application/ld+json">\n%s\n</script>'
+            % json.dumps(data, ensure_ascii=False))
+
+
+# Alle dienstpagina's uit het menu, zodat de lijst niet apart bijgehouden hoeft.
+DIENST_SLUGS = {h: label for _, items in DIENSTEN for h, label in items}
+
+
+def service_ld(meta, url, slug):
+    """Service-markup op een dienstpagina, met het werkgebied erbij.
+
+    Op een provinciepagina is dat de provincie zelf; dat is precies het
+    onderscheid dat zo'n pagina wil maken.
+    """
+    dienst, provincie = split_provincie_slug(slug)
+    if dienst:
+        naam = PROVINCIE_DIENSTEN[dienst]
+        gebied = {"@type": "State",
+                  "name": dict(PROVINCIES)[provincie]}
+    elif slug in DIENST_SLUGS:
+        naam = re.sub(r"&amp;", "en", DIENST_SLUGS[slug])
+        gebied = {"@type": "Country", "name": "Nederland"}
+    else:
+        return ""
+    data = {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": naam,
+        "serviceType": naam,
+        "description": meta.get("description", ""),
+        "url": url,
+        "areaServed": gebied,
+        "provider": {
+            "@type": "ProfessionalService",
+            "name": SITE["name"],
+            "url": SITE["url"] + "/",
+            "telephone": SITE["phone"],
+            "email": SITE["email"],
+        },
+    }
+    return ('\n<script type="application/ld+json">\n%s\n</script>'
+            % json.dumps(data, ensure_ascii=False))
+
+
 _BLOCK = re.compile(r'(?is)<(h2|h3|p|ul|ol)\b[^>]*>.*?</\1>')
 _TXT = re.compile(r'(?is)<[^>]+>')
 
@@ -607,7 +758,9 @@ def build():
             "nav": nav_html(slug),
             "footer": footer_html(),
             "content": body,
-            "schema": schema_ld(meta, url) + breadcrumb_ld(body, url),
+            "schema": (schema_ld(meta, url) + breadcrumb_ld(body, url)
+                       + service_ld(meta, url, slug) + faq_ld(body)),
+            "analytics": analytics_html(),
             "phone": SITE["phone"],
             "phone_link": SITE["phone_link"],
             "email": SITE["email"],
@@ -641,6 +794,9 @@ def build():
             with open(os.path.join(OUT, "404.html"), "w", encoding="utf-8") as f:
                 f.write(html)
             continue
+
+        # Lijstfoto's naar hun kleine variant laten wijzen.
+        html = verklein_thumbs(html)
 
         # Paginalinks krijgen een afsluitende slash, zodat een klik of een
         # crawl niet eerst een 301 hoeft te volgen. Bestanden (met extensie)
