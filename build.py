@@ -35,6 +35,14 @@ CSS_VERSIE = "0"
 PLAUSIBLE = ""
 UMAMI = {"src": "", "id": ""}
 
+# GoatCounter, hetzelfde account dat hieon.nl al gebruikt. Cookieloos en zonder
+# persoonsgegevens, dus geen cookiebanner nodig. Omdat beide sites naar dezelfde
+# teller schrijven, krijgen de paden van deze site het voorvoegsel /vdhe, zodat
+# ze in het dashboard gescheiden blijven van HIEON. Maakt Wouter later een eigen
+# GoatCounter-site aan, dan kan het voorvoegsel eruit.
+GOATCOUNTER = "https://hieon.goatcounter.com/count"
+GOATCOUNTER_PREFIX = "/vdhe"
+
 
 def css_versie():
     """Korte hash van de stylesheet, als ?v= achter de CSS-URL.
@@ -51,6 +59,13 @@ def css_versie():
 
 
 def analytics_html():
+    if GOATCOUNTER:
+        pad = ""
+        if GOATCOUNTER_PREFIX:
+            pad = ('\n<script>window.goatcounter = {path: function(p){ return "%s" + p; }};</script>'
+                   % GOATCOUNTER_PREFIX)
+        return (pad + '\n<script data-goatcounter="%s" async src="https://gc.zgo.at/count.js"></script>'
+                % GOATCOUNTER)
     if PLAUSIBLE:
         return ('\n<script defer data-domain="%s" '
                 'src="https://plausible.io/js/script.js"></script>' % PLAUSIBLE)
