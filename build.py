@@ -396,6 +396,7 @@ def footer_html():
         ("/ecologische-begeleiding", "Ecologische begeleiding"),
         ("/inrichtingsadvies", "Inrichtingsadvies"),
         ("/vergunningstraject", "Vergunning en soortenmanagement"),
+        ("/kosten-en-doorlooptijd", "Kosten en doorlooptijd"),
     ]
 
     def ul(items):
