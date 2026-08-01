@@ -8,6 +8,7 @@ docs/ is de map die GitHub Pages publiceert.
 Draaien:  python3 build.py
 """
 
+import hashlib
 import json
 import os
 import re
@@ -24,6 +25,8 @@ OUT = os.path.join(ROOT, "docs")
 # apex (vanderhamecologie.nl) automatisch door naar www.
 CUSTOM_DOMAIN = "www.vanderhamecologie.nl"
 
+CSS_VERSIE = "0"
+
 # Bezoekersstatistiek, cookieloos. Leeg laten = geen enkel script op de site.
 # Vul PLAUSIBLE in met het domein zoals het in het dashboard heet
 # ("vanderhamecologie.nl"), of UMAMI met de scriptbron en de website-id.
@@ -31,6 +34,20 @@ CUSTOM_DOMAIN = "www.vanderhamecologie.nl"
 # cookiebanner nodig. Zet er nooit Google Analytics bij zonder banner.
 PLAUSIBLE = ""
 UMAMI = {"src": "", "id": ""}
+
+
+def css_versie():
+    """Korte hash van de stylesheet, als ?v= achter de CSS-URL.
+
+    GitHub Pages serveert assets met tien minuten cache en zonder deze hash
+    zien terugkerende bezoekers na een deploy oude opmaak bij nieuwe HTML.
+    Verandert de CSS, dan verandert de URL en haalt de browser hem opnieuw op.
+    """
+    pad = os.path.join(OUT, "assets", "css", "site.css")
+    if not os.path.exists(pad):
+        return "0"
+    with open(pad, "rb") as f:
+        return hashlib.sha1(f.read()).hexdigest()[:8]
 
 
 def analytics_html():
@@ -719,6 +736,10 @@ def build():
     bestanden = sorted(fn for fn in os.listdir(CONTENT) if fn.endswith(".html"))
     bestaande_slugs = {"/" if fn == "index.html" else "/" + fn[:-5] for fn in bestanden}
 
+    # Eén keer bepalen: de stylesheet verandert niet tijdens de bouw.
+    global CSS_VERSIE
+    CSS_VERSIE = css_versie()
+
     pages = []
     for fn in bestanden:
         meta, body = parse_page(os.path.join(CONTENT, fn))
@@ -781,6 +802,7 @@ def build():
             "schema": (schema_ld(meta, url) + breadcrumb_ld(body, url)
                        + service_ld(meta, url, slug) + faq_ld(body)),
             "analytics": analytics_html(),
+            "cssversie": CSS_VERSIE,
             "phone": SITE["phone"],
             "phone_link": SITE["phone_link"],
             "email": SITE["email"],
