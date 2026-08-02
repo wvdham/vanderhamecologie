@@ -120,6 +120,7 @@ DOELGROEPEN = [
     ("/voor-waterschappen", "Waterschappen &amp; TBO's"),
     ("/voor-gemeenten", "Gemeenten"),
     ("/voor-aannemers", "Aannemers &amp; ontwikkelaars"),
+    ("/voor-evenementen", "Evenementen"),
     ("/voor-particulieren", "Particulieren"),
 ]
 
