@@ -368,6 +368,8 @@ def nav_html(current):
           <div class="dropdown dropdown--wide"><div class="dropdown__inner">%(diensten)s</div></div>
         </div>
 
+        <div class="nav__item"><a class="nav__link" href="/projecten"%(a_projecten)s>Projecten</a></div>
+
         <div class="nav__item" data-dropdown>
           <button class="nav__link" type="button" aria-expanded="false">Naast mijn werk %(caret)s</button>
           <div class="dropdown"><div class="dropdown__inner">%(naast)s</div></div>
@@ -385,6 +387,7 @@ def nav_html(current):
         "diensten": "".join(diensten_cols),
         "naast": naast_links,
         "a_about": aria("/about"),
+        "a_projecten": aria("/projecten"),
         "a_contact": aria("/contact"),
     }
 
