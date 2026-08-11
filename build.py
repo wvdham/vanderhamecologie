@@ -731,7 +731,7 @@ def schema_ld(meta, url):
     if meta.get("slug") == "/":
         return """<script type="application/ld+json">
 {"@context":"https://schema.org","@type":"ProfessionalService",
-"name":"%(name)s","url":"%(url)s","image":"%(url)s/assets/img/logo.jpg",
+"name":"%(name)s","url":"%(url)s","image":"%(url)s/assets/img/logo.png",
 "email":"%(email)s","telephone":"%(phone)s",
 "description":"Ecologisch adviesbureau voor quickscans flora en fauna, soortgericht onderzoek en ecologische begeleiding.",
 "address":{"@type":"PostalAddress","streetAddress":"%(street)s","postalCode":"%(postcode)s","addressLocality":"%(city)s","addressCountry":"NL"},
