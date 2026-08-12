@@ -81,7 +81,7 @@
     <p class="pagehead__eyebrow">Soortgericht onderzoek</p>
     <h1>Dagvlinderonderzoek</h1>
     <p>Nodig wanneer uit een quickscan blijkt dat beschermde dagvlinders op de locatie kunnen voorkomen. Geschikt habitat of specifieke waardplanten zijn daarbij doorslaggevend.</p>
-    <a class="btn btn--primary" href="../contact/">Vrijblijvend overleggen <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false"><path d="M2.5 8h11m0 0L9 3.5M13.5 8 9 12.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    <a class="btn btn--primary" href="#aanvraag">Direct aanvragen <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false"><path d="M2.5 8h11m0 0L9 3.5M13.5 8 9 12.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
   </div>
 </section>
 
@@ -150,20 +150,171 @@
   </div>
 </section>
 
-<section class="section cta">
-  <div class="wrap">
-    <div class="cta__inner">
-      <div>
-        <h2>Dagvlinderonderzoek nodig?</h2>
-        <p>Beschrijf kort uw plan en locatie, dan nemen wij binnen 24 uur contact op met een voorstel op maat. Het rapport is direct bruikbaar voor uw omgevingsvergunning ffa.</p>
-      </div>
-      <div class="cta__actions">
-        <a class="btn btn--onDark" href="../contact/">Offerte aanvragen <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false"><path d="M2.5 8h11m0 0L9 3.5M13.5 8 9 12.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-        <a class="btn btn--outlineDark" href="mailto:info@vanderhamecologie.nl">Mail ons direct</a>
-      </div>
+
+<section class="section" id="aanvraag">
+  <div class="wrap wrap--narrow">
+    <div class="head head--center">
+      <h2>Dagvlinderonderzoek aanvragen</h2>
+      <p>Vul in wat u van plan bent en waar. Hoe vollediger het beeld, hoe gerichter ons voorstel. Wij reageren binnen 24 uur met een vrijblijvende offerte of met een vraag als er nog iets ontbreekt.</p>
     </div>
+
+    <form class="form" method="POST" action="https://api.web3forms.com/submit">
+      <input type="hidden" name="access_key" value="c6e48889-f227-4692-9384-7782f3069a85">
+      <input type="hidden" name="subject" value="Nieuwe aanvraag via vanderhamecologie.nl: Dagvlinderonderzoek">
+      <input type="hidden" name="from_name" value="Website Van Der Ham Ecologie">
+      <input type="hidden" name="formulier" value="Dagvlinderonderzoek">
+      <input type="checkbox" class="hp" name="botcheck" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+      <div class="form__row">
+        <div class="field">
+          <label for="qs-naam">Naam</label>
+          <input id="qs-naam" name="name" type="text" autocomplete="name" required placeholder="Uw volledige naam">
+        </div>
+        <div class="field">
+          <label for="qs-email">E-mailadres</label>
+          <input id="qs-email" name="email" type="email" autocomplete="email" required placeholder="uw@email.nl">
+        </div>
+      </div>
+
+      <div class="form__row">
+        <div class="field">
+          <label for="qs-telefoon">Telefoon <span class="field__opt">(optioneel)</span></label>
+          <input id="qs-telefoon" name="phone" type="tel" autocomplete="tel" placeholder="06-12345678">
+        </div>
+        <div class="field">
+          <label for="qs-organisatie">Organisatie <span class="field__opt">(optioneel)</span></label>
+          <input id="qs-organisatie" name="organization" type="text" autocomplete="organization" placeholder="Bedrijf, gemeente of particulier">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="qs-dienst">Waar gaat het over?</label>
+        <select id="qs-dienst" name="dienst">
+            <option value="">Maak een keuze</option>
+            <optgroup label="Bouw en ruimtelijke ontwikkeling">
+              <option>Quickscan flora en fauna</option>
+              <option>Vleermuisonderzoek</option>
+              <option>Huismusonderzoek</option>
+              <option>Gierzwaluwonderzoek</option>
+              <option>Amfibieën- en reptielenonderzoek</option>
+              <option>Beschermde planten onderzoek</option>
+              <option selected>Dagvlinderonderzoek</option>
+              <option>Grondgebonden zoogdieren en marters</option>
+              <option>Broedvogelonderzoek</option>
+              <option>Libellenonderzoek</option>
+            </optgroup>
+            <optgroup label="Beheer, waterschappen en TBO's">
+              <option>Flora- en faunacheck</option>
+              <option>Ecologische begeleiding</option>
+              <option>Invasieve exoten</option>
+              <option>Inventarisatie en monitoring</option>
+              <option>Nachtvlinderonderzoek</option>
+            </optgroup>
+            <optgroup label="Advies, gebied en vergunning">
+              <option>Gebiedsbescherming</option>
+              <option>Inrichtingsadvies</option>
+              <option>Vergunning en soortenmanagement</option>
+            </optgroup>
+            <option>Weet ik nog niet</option>
+        </select>
+        <p class="field__hint">De dienst van deze pagina staat voor. Bent u voor iets anders gekomen, kies dat dan gerust. Wij denken sowieso mee over wat er in uw situatie nodig is.</p>
+      </div>
+
+      <div class="field">
+        <label for="qs-locatie">Adres of postcode van de locatie</label>
+        <input id="qs-locatie" name="locatie" type="text" required placeholder="Straat en huisnummer, of postcode en plaats">
+        <p class="field__hint">Wij kijken vooraf naar luchtfoto's en verspreidingsdata, dus een adres scheelt een vraag heen en weer.</p>
+      </div>
+
+      <div class="form__row">
+        <div class="field">
+          <label for="qs-object">Om wat voor locatie gaat het?</label>
+          <select id="qs-object" name="type_locatie">
+            <option value="">Maak een keuze</option>
+            <option>Woning</option>
+            <option>Schuur, garage of ander bijgebouw</option>
+            <option>Bedrijfspand, kantoor of loods</option>
+            <option>Agrarisch gebouw</option>
+            <option>Tuin, erf of groenstrook</option>
+            <option>Terrein of openbare ruimte</option>
+            <option>Watergang, oever of dijk</option>
+            <option>Natuurterrein of landgoed</option>
+            <option>Anders</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="qs-omvang">Omvang <span class="field__opt">(optioneel)</span></label>
+          <input id="qs-omvang" name="omvang" type="text" placeholder="Bijvoorbeeld vrijstaande woning, of 2.000 m&sup2;">
+        </div>
+      </div>
+
+      <fieldset class="field checkgroup">
+        <legend>Wat gaat u doen?</legend>
+        <div class="checkgroup__grid">
+          <label><input type="checkbox" name="werkzaamheden[]" value="Sloop"> Sloop</label>
+          <label><input type="checkbox" name="werkzaamheden[]" value="Renovatie of verbouwing"> Renovatie of verbouwing</label>
+          <label><input type="checkbox" name="werkzaamheden[]" value="Na-isolatie van spouw of dak"> Na-isolatie van spouw of dak</label>
+          <label><input type="checkbox" name="werkzaamheden[]" value="Dakwerk of gevelwerk"> Dakwerk of gevelwerk</label>
+          <label><input type="checkbox" name="werkzaamheden[]" value="Nieuwbouw of aanbouw"> Nieuwbouw of aanbouw</label>
+          <label><input type="checkbox" name="werkzaamheden[]" value="Bomen kappen"> Bomen kappen</label>
+          <label><input type="checkbox" name="werkzaamheden[]" value="Groen of struweel verwijderen"> Groen of struweel verwijderen</label>
+          <label><input type="checkbox" name="werkzaamheden[]" value="Grondwerk of graafwerk"> Grondwerk of graafwerk</label>
+          <label><input type="checkbox" name="werkzaamheden[]" value="Beheer of onderhoud"> Beheer of onderhoud</label>
+          <label><input type="checkbox" name="werkzaamheden[]" value="Aanleg of herinrichting"> Aanleg of herinrichting</label>
+          <label><input type="checkbox" name="werkzaamheden[]" value="Herbestemming of functiewijziging"> Herbestemming of functiewijziging</label>
+          <label><input type="checkbox" name="werkzaamheden[]" value="Iets anders"> Iets anders</label>
+        </div>
+        <p class="field__hint">Meerdere antwoorden mogelijk. Staat uw ingreep er niet bij, licht dat dan hieronder toe.</p>
+      </fieldset>
+
+      <div class="form__row">
+        <div class="field">
+          <label for="qs-start">Wanneer wilt u starten?</label>
+          <select id="qs-start" name="startmoment">
+            <option value="">Maak een keuze</option>
+            <option>Zo snel mogelijk</option>
+            <option>Binnen drie maanden</option>
+            <option>Over drie tot zes maanden</option>
+            <option>Later dan zes maanden</option>
+            <option>Nog niet bekend</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="qs-aanleiding">Wat is de aanleiding?</label>
+          <select id="qs-aanleiding" name="aanleiding">
+            <option value="">Maak een keuze</option>
+            <option>De gemeente of het bevoegd gezag vraagt erom</option>
+            <option>Het hoort bij een vergunningaanvraag</option>
+            <option>Een adviseur of aannemer adviseerde het</option>
+            <option>Ik wil het uit voorzorg laten uitzoeken</option>
+            <option>Weet ik nog niet</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="qs-bericht">Toelichting en vragen</label>
+        <textarea id="qs-bericht" name="message" required placeholder="Wat is het plan, en wat wilt u van ons weten? Heeft u al eerder ecologisch onderzoek laten doen, of loopt er een termijn waar u aan vastzit?"></textarea>
+        <p class="field__hint">Weet u al iets over de locatie, bijvoorbeeld nesten onder de dakpannen of vleermuizen in de spouw, noem dat dan hier.</p>
+      </div>
+
+      <div class="field">
+        <label class="checkline">
+          <input type="checkbox" name="privacy" required>
+          <span>Ik ga akkoord met de verwerking van mijn gegevens volgens de <a href="../privacyverklaring/">privacyverklaring</a>.</span>
+        </label>
+      </div>
+
+      <div>
+        <button class="btn btn--primary" type="submit">Aanvraag versturen <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false"><path d="M2.5 8h11m0 0L9 3.5M13.5 8 9 12.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      </div>
+      <p class="form__note" role="status" aria-live="polite"></p>
+    </form>
+
+    <p class="form__alt">Liever niet via een formulier? Mail ons op <a href="mailto:info@vanderhamecologie.nl">info@vanderhamecologie.nl</a>, of stel eerst uw vraag via de <a href="../contact/">contactpagina</a>.</p>
   </div>
 </section>
+
 
 </main>
 

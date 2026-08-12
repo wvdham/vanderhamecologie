@@ -133,7 +133,7 @@
 
     <form class="form" method="POST" action="https://api.web3forms.com/submit">
       <input type="hidden" name="access_key" value="c6e48889-f227-4692-9384-7782f3069a85">
-      <input type="hidden" name="subject" value="Nieuwe quickscan-aanvraag via vanderhamecologie.nl">
+      <input type="hidden" name="subject" value="Nieuwe aanvraag via vanderhamecologie.nl: Quickscan flora en fauna Overijssel">
       <input type="hidden" name="from_name" value="Website Van Der Ham Ecologie">
       <input type="hidden" name="formulier" value="Quickscan flora en fauna Overijssel">
       <input type="checkbox" class="hp" name="botcheck" tabindex="-1" autocomplete="off" aria-hidden="true">
@@ -161,6 +161,39 @@
       </div>
 
       <div class="field">
+        <label for="qs-dienst">Waar gaat het over?</label>
+        <select id="qs-dienst" name="dienst">
+            <option value="">Maak een keuze</option>
+            <optgroup label="Bouw en ruimtelijke ontwikkeling">
+              <option selected>Quickscan flora en fauna</option>
+              <option>Vleermuisonderzoek</option>
+              <option>Huismusonderzoek</option>
+              <option>Gierzwaluwonderzoek</option>
+              <option>Amfibieën- en reptielenonderzoek</option>
+              <option>Beschermde planten onderzoek</option>
+              <option>Dagvlinderonderzoek</option>
+              <option>Grondgebonden zoogdieren en marters</option>
+              <option>Broedvogelonderzoek</option>
+              <option>Libellenonderzoek</option>
+            </optgroup>
+            <optgroup label="Beheer, waterschappen en TBO's">
+              <option>Flora- en faunacheck</option>
+              <option>Ecologische begeleiding</option>
+              <option>Invasieve exoten</option>
+              <option>Inventarisatie en monitoring</option>
+              <option>Nachtvlinderonderzoek</option>
+            </optgroup>
+            <optgroup label="Advies, gebied en vergunning">
+              <option>Gebiedsbescherming</option>
+              <option>Inrichtingsadvies</option>
+              <option>Vergunning en soortenmanagement</option>
+            </optgroup>
+            <option>Weet ik nog niet</option>
+        </select>
+        <p class="field__hint">De dienst van deze pagina staat voor. Bent u voor iets anders gekomen, kies dat dan gerust. Wij denken sowieso mee over wat er in uw situatie nodig is.</p>
+      </div>
+
+      <div class="field">
         <label for="qs-locatie">Adres of postcode van de locatie</label>
         <input id="qs-locatie" name="locatie" type="text" required placeholder="Straat en huisnummer, of postcode en plaats">
         <p class="field__hint">Wij kijken vooraf naar luchtfoto's en verspreidingsdata, dus een adres scheelt een vraag heen en weer.</p>
@@ -178,6 +211,7 @@
             <option>Tuin, erf of groenstrook</option>
             <option>Terrein of openbare ruimte</option>
             <option>Watergang, oever of dijk</option>
+            <option>Natuurterrein of landgoed</option>
             <option>Anders</option>
           </select>
         </div>
@@ -196,9 +230,11 @@
           <label><input type="checkbox" name="werkzaamheden[]" value="Dakwerk of gevelwerk"> Dakwerk of gevelwerk</label>
           <label><input type="checkbox" name="werkzaamheden[]" value="Nieuwbouw of aanbouw"> Nieuwbouw of aanbouw</label>
           <label><input type="checkbox" name="werkzaamheden[]" value="Bomen kappen"> Bomen kappen</label>
-          <label><input type="checkbox" name="werkzaamheden[]" value="Struweel of ander groen verwijderen"> Struweel of ander groen verwijderen</label>
-          <label><input type="checkbox" name="werkzaamheden[]" value="Herbestemming of functiewijziging"> Herbestemming of functiewijziging</label>
+          <label><input type="checkbox" name="werkzaamheden[]" value="Groen of struweel verwijderen"> Groen of struweel verwijderen</label>
           <label><input type="checkbox" name="werkzaamheden[]" value="Grondwerk of graafwerk"> Grondwerk of graafwerk</label>
+          <label><input type="checkbox" name="werkzaamheden[]" value="Beheer of onderhoud"> Beheer of onderhoud</label>
+          <label><input type="checkbox" name="werkzaamheden[]" value="Aanleg of herinrichting"> Aanleg of herinrichting</label>
+          <label><input type="checkbox" name="werkzaamheden[]" value="Herbestemming of functiewijziging"> Herbestemming of functiewijziging</label>
           <label><input type="checkbox" name="werkzaamheden[]" value="Iets anders"> Iets anders</label>
         </div>
         <p class="field__hint">Meerdere antwoorden mogelijk. Staat uw ingreep er niet bij, licht dat dan hieronder toe.</p>

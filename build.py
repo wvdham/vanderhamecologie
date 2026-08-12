@@ -215,8 +215,9 @@ def schrijf_redirects(bestaande_slugs):
 # een nieuwe sleutel moet altijd op beide plekken tegelijk worden gezet.
 WEB3FORMS_KEY = "c6e48889-f227-4692-9384-7782f3069a85"
 
-# De werkzaamheden waaruit een aanvrager kan kiezen. Dit is de lijst waarmee
-# een quickscan meestal begint, van meest naar minst voorkomend.
+# De werkzaamheden waaruit een aanvrager kan kiezen. Bouw en sloop staan
+# vooraan omdat daar de meeste aanvragen vandaan komen, beheer en aanleg
+# staan erbij voor de waterschaps- en terreinbeheerkant.
 WERKZAAMHEDEN = [
     "Sloop",
     "Renovatie of verbouwing",
@@ -224,19 +225,99 @@ WERKZAAMHEDEN = [
     "Dakwerk of gevelwerk",
     "Nieuwbouw of aanbouw",
     "Bomen kappen",
-    "Struweel of ander groen verwijderen",
-    "Herbestemming of functiewijziging",
+    "Groen of struweel verwijderen",
     "Grondwerk of graafwerk",
+    "Beheer of onderhoud",
+    "Aanleg of herinrichting",
+    "Herbestemming of functiewijziging",
     "Iets anders",
 ]
 
+# Koppen die niet vanzelf goed lopen als "<dienst> aanvragen". De rest wordt
+# afgeleid uit het label in DIENSTEN.
+AANVRAAG_KOPPEN = {
+    "/quickscan-flora-en-fauna": "Vraag een quickscan aan",
+    "/zoogdieronderzoek": "Zoogdieronderzoek aanvragen",
+    "/invasieve-exoten": "Advies over invasieve exoten aanvragen",
+    "/gebiedsbescherming": "Toets gebiedsbescherming aanvragen",
+    "/vergunningstraject": "Vergunningstraject aanvragen",
+    "/aanvullend-onderzoek": "Aanvullend onderzoek aanvragen",
+}
 
-def aanvraagformulier_html(kop, herkomst):
+# Diensten die alleen als provinciepagina bestaan, of waarvan het label in de
+# keuzelijst korter moet dan in de navigatie.
+DIENSTLABELS_EXTRA = {
+    "/ecologisch-advies": "Ecologisch advies",
+    "/aanvullend-onderzoek": "Aanvullend soortgericht onderzoek",
+}
+
+# Uitleg- en zijpagina's die bij een dienst horen, zodat het formulier daar
+# dezelfde dienst voorselecteert als op de dienstpagina zelf.
+DIENST_ALIAS = {
+    "/quickscan-flora-en-fauna-verplicht": "/quickscan-flora-en-fauna",
+    "/vleermuisonderzoek-verplicht": "/vleermuisonderzoek",
+}
+
+
+def dienst_label(slug):
+    """Het leesbare label bij een dienstslug, zonder provincie."""
+    for _, items in DIENSTEN:
+        for href, label in items:
+            if href == slug:
+                return label.replace("&amp;", "en")
+    return DIENSTLABELS_EXTRA.get(slug, "")
+
+
+def basis_dienstslug(slug):
+    """De dienstslug achter een pagina, zonder provincie en zonder zijpad."""
+    if slug in DIENST_ALIAS:
+        return DIENST_ALIAS[slug], None
+    dienst, provincie = split_provincie_slug(slug)
+    return ("/" + dienst if dienst else slug), provincie
+
+
+def aanvraag_kop(slug):
+    """De kop boven het aanvraagformulier, met provincie als die er is."""
+    basis, provincie = basis_dienstslug(slug)
+    dienst = basis.strip("/")
+    label = dienst_label(basis)
+    kop = AANVRAAG_KOPPEN.get(basis) or (label + " aanvragen" if label else "Vraag een offerte aan")
+    if provincie:
+        # In de provincievariant is de kop altijd de dienst, nooit de
+        # omschrijving uit AANVRAAG_KOPPEN, anders staat de provincie scheef.
+        # PROVINCIE_DIENSTEN heeft het kortere label, dat hier beter loopt.
+        naam = dict(PROVINCIES)[provincie]
+        kort = PROVINCIE_DIENSTEN.get(dienst) or label or "Ecologisch onderzoek"
+        kop = "%s aanvragen in %s" % (kort, naam)
+    return kop
+
+
+def dienstkeuze_html(slug):
+    """De keuzelijst 'waar gaat het over', met de dienst van deze pagina voor."""
+    basis, _ = basis_dienstslug(slug)
+    huidig = dienst_label(basis)
+    regels = []
+    for groep, items in DIENSTEN:
+        regels.append('            <optgroup label="%s">' % groep.replace("&amp;", "en"))
+        for href, label in items:
+            schoon = label.replace("&amp;", "en")
+            gekozen = " selected" if schoon == huidig else ""
+            regels.append("              <option%s>%s</option>" % (gekozen, schoon))
+        regels.append("            </optgroup>")
+    leeg = "" if huidig else " selected"
+    regels.insert(0, '            <option value=""%s>Maak een keuze</option>' % leeg)
+    regels.append("            <option>Weet ik nog niet</option>")
+    return "\n".join(regels)
+
+
+def aanvraagformulier_html(kop, herkomst, slug):
     """Het aanvraagformulier onderaan een dienstpagina.
 
     `herkomst` gaat als verborgen veld mee, zodat in de mailbox te zien is
-    van welke pagina een aanvraag komt. Zonder JavaScript werkt het als
-    gewone POST; de opmaak van het antwoord regelt templates/base.html.
+    van welke pagina een aanvraag komt. De dienst van de pagina staat voor
+    in de keuzelijst, maar blijft aanpasbaar voor wie op de verkeerde pagina
+    is beland. Zonder JavaScript werkt het als gewone POST; de opmaak van
+    het antwoord regelt templates/base.html.
     """
     vakjes = "\n".join(
         '          <label><input type="checkbox" name="werkzaamheden[]" '
@@ -253,7 +334,7 @@ def aanvraagformulier_html(kop, herkomst):
 
     <form class="form" method="POST" action="https://api.web3forms.com/submit">
       <input type="hidden" name="access_key" value="%(key)s">
-      <input type="hidden" name="subject" value="Nieuwe quickscan-aanvraag via vanderhamecologie.nl">
+      <input type="hidden" name="subject" value="Nieuwe aanvraag via vanderhamecologie.nl: %(herkomst)s">
       <input type="hidden" name="from_name" value="Website Van Der Ham Ecologie">
       <input type="hidden" name="formulier" value="%(herkomst)s">
       <input type="checkbox" class="hp" name="botcheck" tabindex="-1" autocomplete="off" aria-hidden="true">
@@ -281,6 +362,14 @@ def aanvraagformulier_html(kop, herkomst):
       </div>
 
       <div class="field">
+        <label for="qs-dienst">Waar gaat het over?</label>
+        <select id="qs-dienst" name="dienst">
+%(dienstkeuze)s
+        </select>
+        <p class="field__hint">De dienst van deze pagina staat voor. Bent u voor iets anders gekomen, kies dat dan gerust. Wij denken sowieso mee over wat er in uw situatie nodig is.</p>
+      </div>
+
+      <div class="field">
         <label for="qs-locatie">Adres of postcode van de locatie</label>
         <input id="qs-locatie" name="locatie" type="text" required placeholder="Straat en huisnummer, of postcode en plaats">
         <p class="field__hint">Wij kijken vooraf naar luchtfoto's en verspreidingsdata, dus een adres scheelt een vraag heen en weer.</p>
@@ -298,6 +387,7 @@ def aanvraagformulier_html(kop, herkomst):
             <option>Tuin, erf of groenstrook</option>
             <option>Terrein of openbare ruimte</option>
             <option>Watergang, oever of dijk</option>
+            <option>Natuurterrein of landgoed</option>
             <option>Anders</option>
           </select>
         </div>
@@ -362,7 +452,13 @@ def aanvraagformulier_html(kop, herkomst):
     <p class="form__alt">Liever niet via een formulier? Mail ons op <a href="mailto:{{email}}">{{email}}</a>, of stel eerst uw vraag via de <a href="/contact">contactpagina</a>.</p>
   </div>
 </section>
-""" % {"kop": kop, "key": WEB3FORMS_KEY, "herkomst": herkomst, "vakjes": vakjes}
+""" % {
+        "kop": kop,
+        "key": WEB3FORMS_KEY,
+        "herkomst": herkomst,
+        "vakjes": vakjes,
+        "dienstkeuze": dienstkeuze_html(slug),
+    }
 
 
 # De blokken waarmee een pagina kan eindigen, in de volgorde waarin ze het
@@ -983,8 +1079,10 @@ def build():
         # provinciesecties, want die zoeken dit blok als ankerpunt.
         herkomst = meta.get("title", SITE["name"]).split("|")[0].strip()
         body = re.sub(
-            r'\{\{aanvraagformulier:([^}]+)\}\}',
-            lambda m: aanvraagformulier_html(m.group(1).strip(), herkomst),
+            r'\{\{aanvraagformulier(?::([^}]+))?\}\}',
+            lambda m: aanvraagformulier_html(
+                (m.group(1) or "").strip() or aanvraag_kop(slug), herkomst, slug
+            ),
             body,
         )
 
