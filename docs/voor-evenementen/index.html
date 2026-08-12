@@ -411,6 +411,11 @@
             form.reset();
             status.style.color = 'var(--green)';
             status.textContent = 'Bedankt, uw aanvraag is verstuurd. Wij reageren binnen 24 uur.';
+            // Doorsturen naar de bedanktpagina, zodat een verstuurde aanvraag
+            // een eigen paginaweergave is en dus meetbaar in GoatCounter.
+            // Blijft de melding hierboven staan als het doel ontbreekt.
+            var doel = form.querySelector('#formulier-doel');
+            if (doel) { window.location.assign(doel.href); }
           } else {
             throw new Error(data.message || 'Versturen mislukt');
           }

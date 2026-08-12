@@ -78,6 +78,10 @@ eyebrow: Contact
             <button class="btn btn--primary" type="submit">Verstuur bericht {{arrow}}</button>
           </div>
           <p class="form__note" id="formulier-status" role="status" aria-live="polite"></p>
+          <!-- Doel na een geslaagde verzending. Staat als link in de HTML zodat
+               build.py hem net als elke interne link relatief maakt; een pad in
+               het script zelf zou die bewerking mislopen. -->
+          <a class="hp" id="formulier-doel" href="/bedankt/" tabindex="-1" aria-hidden="true"></a>
         </form>
       </div>
 

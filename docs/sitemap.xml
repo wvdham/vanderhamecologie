@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://www.vanderhamecologie.nl/</loc><lastmod>2026-08-12</lastmod><priority>1.0</priority></url>
+  <url><loc>https://www.vanderhamecologie.nl/</loc><lastmod>2026-08-11</lastmod><priority>1.0</priority></url>
   <url><loc>https://www.vanderhamecologie.nl/aanvullend-onderzoek/</loc><lastmod>2026-08-12</lastmod><priority>0.7</priority></url>
-  <url><loc>https://www.vanderhamecologie.nl/about/</loc><lastmod>2026-08-12</lastmod><priority>0.7</priority></url>
+  <url><loc>https://www.vanderhamecologie.nl/about/</loc><lastmod>2026-08-11</lastmod><priority>0.7</priority></url>
   <url><loc>https://www.vanderhamecologie.nl/amfibieen-reptielenonderzoek/</loc><lastmod>2026-08-12</lastmod><priority>0.7</priority></url>
   <url><loc>https://www.vanderhamecologie.nl/beschermde-planten-onderzoek/</loc><lastmod>2026-08-12</lastmod><priority>0.7</priority></url>
   <url><loc>https://www.vanderhamecologie.nl/broedvogelonderzoek/</loc><lastmod>2026-08-12</lastmod><priority>0.7</priority></url>
-  <url><loc>https://www.vanderhamecologie.nl/contact/</loc><lastmod>2026-08-12</lastmod><priority>0.7</priority></url>
+  <url><loc>https://www.vanderhamecologie.nl/contact/</loc><lastmod>2026-08-11</lastmod><priority>0.7</priority></url>
   <url><loc>https://www.vanderhamecologie.nl/dagvlinderonderzoek/</loc><lastmod>2026-08-12</lastmod><priority>0.7</priority></url>
+  <url><loc>https://www.vanderhamecologie.nl/diensten/</loc><lastmod>2026-08-12</lastmod><priority>0.9</priority></url>
   <url><loc>https://www.vanderhamecologie.nl/ecologisch-advies-drenthe/</loc><lastmod>2026-08-12</lastmod><priority>0.7</priority></url>
   <url><loc>https://www.vanderhamecologie.nl/ecologisch-advies-flevoland/</loc><lastmod>2026-08-12</lastmod><priority>0.7</priority></url>
   <url><loc>https://www.vanderhamecologie.nl/ecologisch-advies-fryslan/</loc><lastmod>2026-08-12</lastmod><priority>0.7</priority></url>
@@ -55,7 +56,7 @@
   <url><loc>https://www.vanderhamecologie.nl/kosten-en-doorlooptijd/</loc><lastmod>2026-08-12</lastmod><priority>0.7</priority></url>
   <url><loc>https://www.vanderhamecologie.nl/libellenonderzoek/</loc><lastmod>2026-08-12</lastmod><priority>0.7</priority></url>
   <url><loc>https://www.vanderhamecologie.nl/nachtvlinderonderzoek/</loc><lastmod>2026-08-12</lastmod><priority>0.7</priority></url>
-  <url><loc>https://www.vanderhamecologie.nl/privacyverklaring/</loc><lastmod>2026-08-12</lastmod><priority>0.7</priority></url>
+  <url><loc>https://www.vanderhamecologie.nl/privacyverklaring/</loc><lastmod>2026-08-11</lastmod><priority>0.7</priority></url>
   <url><loc>https://www.vanderhamecologie.nl/projecten/</loc><lastmod>2026-08-12</lastmod><priority>0.7</priority></url>
   <url><loc>https://www.vanderhamecologie.nl/quickscan-flora-en-fauna-drenthe/</loc><lastmod>2026-08-12</lastmod><priority>0.7</priority></url>
   <url><loc>https://www.vanderhamecologie.nl/quickscan-flora-en-fauna-flevoland/</loc><lastmod>2026-08-12</lastmod><priority>0.7</priority></url>
@@ -71,7 +72,6 @@
   <url><loc>https://www.vanderhamecologie.nl/quickscan-flora-en-fauna-zeeland/</loc><lastmod>2026-08-12</lastmod><priority>0.7</priority></url>
   <url><loc>https://www.vanderhamecologie.nl/quickscan-flora-en-fauna-zuid-holland/</loc><lastmod>2026-08-12</lastmod><priority>0.7</priority></url>
   <url><loc>https://www.vanderhamecologie.nl/quickscan-flora-en-fauna/</loc><lastmod>2026-08-12</lastmod><priority>0.7</priority></url>
-  <url><loc>https://www.vanderhamecologie.nl/services/</loc><lastmod>2026-08-12</lastmod><priority>0.9</priority></url>
   <url><loc>https://www.vanderhamecologie.nl/vergunningstraject/</loc><lastmod>2026-08-12</lastmod><priority>0.7</priority></url>
   <url><loc>https://www.vanderhamecologie.nl/vleermuisonderzoek-drenthe/</loc><lastmod>2026-08-12</lastmod><priority>0.7</priority></url>
   <url><loc>https://www.vanderhamecologie.nl/vleermuisonderzoek-flevoland/</loc><lastmod>2026-08-12</lastmod><priority>0.7</priority></url>
@@ -92,6 +92,6 @@
   <url><loc>https://www.vanderhamecologie.nl/voor-gemeenten/</loc><lastmod>2026-08-12</lastmod><priority>0.7</priority></url>
   <url><loc>https://www.vanderhamecologie.nl/voor-particulieren/</loc><lastmod>2026-08-12</lastmod><priority>0.7</priority></url>
   <url><loc>https://www.vanderhamecologie.nl/voor-waterschappen/</loc><lastmod>2026-08-12</lastmod><priority>0.7</priority></url>
-  <url><loc>https://www.vanderhamecologie.nl/wouter-van-der-ham/</loc><lastmod>2026-08-12</lastmod><priority>0.7</priority></url>
+  <url><loc>https://www.vanderhamecologie.nl/wouter-van-der-ham/</loc><lastmod>2026-08-11</lastmod><priority>0.7</priority></url>
   <url><loc>https://www.vanderhamecologie.nl/zoogdieronderzoek/</loc><lastmod>2026-08-12</lastmod><priority>0.7</priority></url>
 </urlset>

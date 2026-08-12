@@ -13,6 +13,7 @@ import json
 import os
 import re
 import shutil
+import subprocess
 import sys
 from datetime import date
 
@@ -174,6 +175,9 @@ REDIRECTS = {
     # en is op 12 augustus 2026 opgeheven: te persoonlijk voor hoe het bedrijf
     # nu naar buiten treedt. Doel is /projecten, de zakelijke referentiepagina.
     "/projects": "/projecten/",
+    # /services was de enige Engelse slug op een verder Nederlandse site, terwijl
+    # de zoekterm "diensten" is. Omgezet op 12 augustus 2026.
+    "/services": "/diensten/",
 }
 
 
@@ -1046,6 +1050,43 @@ def schema_ld(meta, url):
     return ""
 
 
+def bestand_datum(pad):
+    """Terugval voor `lastmod`: de bestandsdatum op schijf."""
+    try:
+        return date.fromtimestamp(os.path.getmtime(pad)).isoformat()
+    except OSError:
+        return date.today().isoformat()
+
+
+def content_datums():
+    """Datum van de laatste commit per contentbestand, als {bestandsnaam: 'JJJJ-MM-DD'}.
+
+    Eén git-aanroep voor de hele map; los opvragen per bestand kost bij ruim
+    negentig pagina's evenzoveel processen. Bestanden die nog niet gecommit
+    zijn ontbreken hier en vallen in de aanroeper terug op hun bestandsdatum.
+    """
+    datums = {}
+    try:
+        uit = subprocess.run(
+            ["git", "log", "--name-only", "--format=%cd", "--date=short", "--", CONTENT],
+            cwd=os.path.dirname(os.path.abspath(__file__)),
+            capture_output=True, text=True, timeout=30,
+        ).stdout
+    except (OSError, subprocess.SubprocessError):
+        return datums
+    datum = None
+    for regel in uit.splitlines():
+        regel = regel.strip()
+        if not regel:
+            continue
+        if re.fullmatch(r"\d{4}-\d{2}-\d{2}", regel):
+            datum = regel
+        elif datum and regel.endswith(".html"):
+            # git noemt de nieuwste commit eerst, dus de eerste treffer wint.
+            datums.setdefault(os.path.basename(regel), datum)
+    return datums
+
+
 def build():
     if not os.path.isdir(CONTENT):
         sys.exit("content/ ontbreekt")
@@ -1064,6 +1105,11 @@ def build():
     # Eén keer bepalen: de stylesheet verandert niet tijdens de bouw.
     global CSS_VERSIE
     CSS_VERSIE = css_versie()
+
+    # Per bronbestand de datum van de laatste inhoudelijke wijziging, zodat
+    # `lastmod` in de sitemap informatie draagt in plaats van bij elke bouw
+    # opnieuw vandaag te worden.
+    wijzigingsdatums = content_datums()
 
     pages = []
     for fn in bestanden:
@@ -1183,21 +1229,35 @@ def build():
         basis = "./" if slug == "/" else "../"
         html = re.sub(r'(href|src)="/(?!/)', r'\1="' + basis, html)
 
+        # Pagina's met `noindex: true` in de frontmatter horen niet in de
+        # zoekresultaten en dus ook niet in de sitemap. Bedoeld voor pagina's
+        # die alleen als eindpunt van een handeling bestaan, zoals /bedankt.
+        verborgen = str(meta.get("noindex", "")).lower() in ("true", "ja", "1")
+        if verborgen:
+            html = html.replace(
+                "</title>", "</title>\n<meta name=\"robots\" content=\"noindex\">", 1
+            )
+
         target = OUT if slug == "/" else os.path.join(OUT, slug.strip("/"))
         os.makedirs(target, exist_ok=True)
         with open(os.path.join(target, "index.html"), "w", encoding="utf-8") as f:
             f.write(html)
-        pages.append((url, meta.get("priority", "0.7")))
+        if verborgen:
+            continue
+
+        pages.append((url, meta.get("priority", "0.7"),
+                      wijzigingsdatums.get(fn) or bestand_datum(os.path.join(CONTENT, fn))))
 
     # Doorverwijsstubs voor oude URL's; bewust niet in `pages`, dus ook
     # niet in de sitemap.
     schrijf_redirects(bestaande_slugs)
 
-    # sitemap.xml
-    today = date.today().isoformat()
+    # sitemap.xml. `lastmod` komt per pagina uit de laatste wijziging van het
+    # bronbestand; zou hier de builddatum staan, dan meldt elke bouw alle
+    # pagina's als gewijzigd en draagt het veld geen informatie meer.
     entries = "".join(
-        "\n  <url><loc>%s</loc><lastmod>%s</lastmod><priority>%s</priority></url>" % (u, today, p)
-        for u, p in sorted(pages)
+        "\n  <url><loc>%s</loc><lastmod>%s</lastmod><priority>%s</priority></url>" % (u, m, p)
+        for u, p, m in sorted(pages)
     )
     with open(os.path.join(OUT, "sitemap.xml"), "w", encoding="utf-8") as f:
         f.write('<?xml version="1.0" encoding="UTF-8"?>\n'
@@ -1227,7 +1287,7 @@ def build():
 
     print("%d pagina's gebouwd naar docs/ (custom domain: %s)"
           % (len(pages), CUSTOM_DOMAIN or "nog niet, github.io-preview"))
-    missing = [u for u, _ in pages if "  " in u]
+    missing = [u for u, *_ in pages if "  " in u]
     if missing:
         print("let op:", missing)
 
