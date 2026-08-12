@@ -130,11 +130,10 @@ ARROW = (
     'stroke-linecap="round" stroke-linejoin="round"/></svg>'
 )
 
-NAAST_WERK = [
-    ("/projects#invested-birding", "Invested Birding"),
-    ("/projects#natuurspeld", "Natuurspeld"),
-    ("/projects#big-week", "Big Week"),
-]
+# De pagina /projects ("Naast mijn werk") stond tot augustus 2026 als
+# uitklapmenu in de hoofdnavigatie. Dat is eruit gehaald omdat het bedrijf
+# zakelijker naar buiten treedt; de pagina zelf blijft bestaan en staat in de
+# sitemap, maar wordt niet meer vanuit het menu gepromoot.
 
 # Provinciepagina's heten <dienst>-<provincie>. De volgorde hieronder is de
 # volgorde waarin de doorverwijzingen onderaan zo'n pagina verschijnen.
@@ -390,8 +389,6 @@ def nav_html(current):
     doelgroep_links = "".join(
         '<a href="%s"%s>%s</a>' % (h, aria(h), label) for h, label in DOELGROEPEN
     )
-    naast_links = "".join('<a href="%s">%s</a>' % (h, l) for h, l in NAAST_WERK)
-
     caret = (
         '<svg class="nav__caret" viewBox="0 0 12 12" aria-hidden="true" focusable="false">'
         '<path d="M2 4.5 6 8.5 10 4.5" fill="none" stroke="currentColor" '
@@ -414,11 +411,6 @@ def nav_html(current):
 
         <div class="nav__item"><a class="nav__link" href="/projecten"%(a_projecten)s>Projecten</a></div>
 
-        <div class="nav__item" data-dropdown>
-          <button class="nav__link" type="button" aria-expanded="false">Naast mijn werk %(caret)s</button>
-          <div class="dropdown"><div class="dropdown__inner">%(naast)s</div></div>
-        </div>
-
         <div class="nav__item"><a class="nav__link" href="/contact"%(a_contact)s>Contact</a></div>
 
         <div class="nav__mobile-cta">
@@ -429,7 +421,6 @@ def nav_html(current):
         "caret": caret,
         "doelgroepen": doelgroep_links,
         "diensten": "".join(diensten_cols),
-        "naast": naast_links,
         "a_about": aria("/about"),
         "a_projecten": aria("/projecten"),
         "a_contact": aria("/contact"),
