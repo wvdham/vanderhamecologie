@@ -23,7 +23,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=Lora:wght@500;600;700&display=swap">
-<link rel="stylesheet" href="../assets/css/site.css?v=5a15ea28">
+<link rel="stylesheet" href="../assets/css/site.css?v=783acdf8">
 
 <script>window.goatcounter = {path: function(p){ return "/vdhe" + p; }};</script>
 <script data-goatcounter="https://hieon.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
@@ -381,44 +381,49 @@
   });
 })();
 
-/* Contactformulier: versturen zonder de pagina te verlaten.
-   Zonder JavaScript werkt het formulier gewoon als gewone POST. */
+/* Formulieren: versturen zonder de pagina te verlaten. Werkt voor elk
+   formulier met class "form", dus ook voor de aanvraagformulieren op de
+   dienstpagina's. Zonder JavaScript werkt het gewoon als gewone POST. */
 (function () {
-  var form = document.getElementById('contactformulier');
-  if (!form) return;
-  var status = document.getElementById('formulier-status');
-  var knop = form.querySelector('button[type="submit"]');
-  var knopTekst = knop ? knop.innerHTML : '';
+  var formulieren = document.querySelectorAll('form.form');
+  if (!formulieren.length) return;
 
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    if (knop) { knop.disabled = true; knop.textContent = 'Versturen...'; }
-    status.style.color = '';
-    status.textContent = '';
+  Array.prototype.forEach.call(formulieren, function (form) {
+    var status = form.querySelector('.form__note[role="status"]');
+    var knop = form.querySelector('button[type="submit"]');
+    var knopTekst = knop ? knop.innerHTML : '';
+    if (!status) return;
 
-    fetch(form.action, {
-      method: 'POST',
-      headers: { 'Accept': 'application/json' },
-      body: new FormData(form)
-    })
-      .then(function (r) { return r.json(); })
-      .then(function (data) {
-        if (data.success) {
-          form.reset();
-          status.style.color = 'var(--green)';
-          status.textContent = 'Bedankt, uw bericht is verstuurd. Wij reageren binnen 24 uur.';
-        } else {
-          throw new Error(data.message || 'Versturen mislukt');
-        }
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (knop) { knop.disabled = true; knop.textContent = 'Versturen...'; }
+      status.style.color = '';
+      status.textContent = '';
+
+      fetch(form.action, {
+        method: 'POST',
+        headers: { 'Accept': 'application/json' },
+        body: new FormData(form)
       })
-      .catch(function () {
-        status.style.color = '#8B2E2E';
-        status.innerHTML = 'Het versturen lukte niet. Mail ons direct op ' +
-          '<a href="mailto:info@vanderhamecologie.nl">info@vanderhamecologie.nl</a> of bel 06-23002037.';
-      })
-      .then(function () {
-        if (knop) { knop.disabled = false; knop.innerHTML = knopTekst; }
-      });
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (data.success) {
+            form.reset();
+            status.style.color = 'var(--green)';
+            status.textContent = 'Bedankt, uw aanvraag is verstuurd. Wij reageren binnen 24 uur.';
+          } else {
+            throw new Error(data.message || 'Versturen mislukt');
+          }
+        })
+        .catch(function () {
+          status.style.color = '#8B2E2E';
+          status.innerHTML = 'Het versturen lukte niet. Mail ons direct op ' +
+            '<a href="mailto:info@vanderhamecologie.nl">info@vanderhamecologie.nl</a> of bel 06-23002037.';
+        })
+        .then(function () {
+          if (knop) { knop.disabled = false; knop.innerHTML = knopTekst; }
+        });
+    });
   });
 })();
 </script>

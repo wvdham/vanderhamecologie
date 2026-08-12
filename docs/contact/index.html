@@ -23,7 +23,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=Lora:wght@500;600;700&display=swap">
-<link rel="stylesheet" href="../assets/css/site.css?v=5a15ea28">
+<link rel="stylesheet" href="../assets/css/site.css?v=783acdf8">
 
 <script type="application/ld+json">
 {"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Hoe snel kan ik een reactie verwachten?", "acceptedAnswer": {"@type": "Answer", "text": "Wij reageren binnen 24 uur op vragen en offerteaanvragen. Heeft u haast, vermeld dat dan in uw bericht, dan pakken wij het met voorrang op."}}, {"@type": "Question", "name": "Wat kost een quickscan of flora- en faunacheck?", "acceptedAnswer": {"@type": "Answer", "text": "Dat hangt af van de omvang en complexiteit van het project. Elke situatie is anders, dus wij kijken eerst wat er werkelijk nodig is. U krijgt een vrijblijvende offerte waarin staat wat u wel en niet hoeft te laten onderzoeken."}}, {"@type": "Question", "name": "Hoe lang duurt het om een rapportage te ontvangen?", "acceptedAnswer": {"@type": "Answer", "text": "Dat verschilt per onderzoek. Een flora- en faunacheck leveren wij kort na het veldbezoek. Een quickscan met volledige juridische toetsing kost meer tijd, en in het hoogseizoen meer dan daarbuiten. Wij spreken de opleverdatum af bij de offerte in plaats van vooraf een termijn te noemen die we niet altijd halen. Meer over kosten en doorlooptijd."}}, {"@type": "Question", "name": "In welke regio's bent u actief?", "acceptedAnswer": {"@type": "Answer", "text": "Wij werken door heel Nederland. De thuisbasis is Zeist, in de provincie Utrecht, centraal gelegen en goed bereikbaar."}}, {"@type": "Question", "name": "Kan ik ook voor spoedeisende projecten bij u terecht?", "acceptedAnswer": {"@type": "Answer", "text": "Vaak wel. Stuur ons een bericht en vermeld dat het om spoed gaat, dan bespreken wij direct de mogelijkheden. Let wel op: veel soortgericht onderzoek is seizoensgebonden. Als het onderzoeksseizoen voorbij is, kunnen wij dat niet inhalen."}}, {"@type": "Question", "name": "Werkt u ook voor particulieren of alleen voor bedrijven?", "acceptedAnswer": {"@type": "Answer", "text": "Voor allebei. Wij werken voor particulieren met bouwplannen, voor waterschappen en gemeenten, en voor aannemers en ontwikkelaars."}}, {"@type": "Question", "name": "Wat gebeurt er na het indienen van een aanvraag?", "acceptedAnswer": {"@type": "Answer", "text": "Wij nemen binnen 24 uur contact op en bespreken uw project per e-mail of telefonisch. Daarna ontvangt u een heldere, vrijblijvende offerte. Gaat u akkoord, dan plannen wij het veldbezoek of de werkzaamheden in."}}]}
@@ -335,44 +335,49 @@
   });
 })();
 
-/* Contactformulier: versturen zonder de pagina te verlaten.
-   Zonder JavaScript werkt het formulier gewoon als gewone POST. */
+/* Formulieren: versturen zonder de pagina te verlaten. Werkt voor elk
+   formulier met class "form", dus ook voor de aanvraagformulieren op de
+   dienstpagina's. Zonder JavaScript werkt het gewoon als gewone POST. */
 (function () {
-  var form = document.getElementById('contactformulier');
-  if (!form) return;
-  var status = document.getElementById('formulier-status');
-  var knop = form.querySelector('button[type="submit"]');
-  var knopTekst = knop ? knop.innerHTML : '';
+  var formulieren = document.querySelectorAll('form.form');
+  if (!formulieren.length) return;
 
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    if (knop) { knop.disabled = true; knop.textContent = 'Versturen...'; }
-    status.style.color = '';
-    status.textContent = '';
+  Array.prototype.forEach.call(formulieren, function (form) {
+    var status = form.querySelector('.form__note[role="status"]');
+    var knop = form.querySelector('button[type="submit"]');
+    var knopTekst = knop ? knop.innerHTML : '';
+    if (!status) return;
 
-    fetch(form.action, {
-      method: 'POST',
-      headers: { 'Accept': 'application/json' },
-      body: new FormData(form)
-    })
-      .then(function (r) { return r.json(); })
-      .then(function (data) {
-        if (data.success) {
-          form.reset();
-          status.style.color = 'var(--green)';
-          status.textContent = 'Bedankt, uw bericht is verstuurd. Wij reageren binnen 24 uur.';
-        } else {
-          throw new Error(data.message || 'Versturen mislukt');
-        }
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (knop) { knop.disabled = true; knop.textContent = 'Versturen...'; }
+      status.style.color = '';
+      status.textContent = '';
+
+      fetch(form.action, {
+        method: 'POST',
+        headers: { 'Accept': 'application/json' },
+        body: new FormData(form)
       })
-      .catch(function () {
-        status.style.color = '#8B2E2E';
-        status.innerHTML = 'Het versturen lukte niet. Mail ons direct op ' +
-          '<a href="mailto:info@vanderhamecologie.nl">info@vanderhamecologie.nl</a> of bel 06-23002037.';
-      })
-      .then(function () {
-        if (knop) { knop.disabled = false; knop.innerHTML = knopTekst; }
-      });
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (data.success) {
+            form.reset();
+            status.style.color = 'var(--green)';
+            status.textContent = 'Bedankt, uw aanvraag is verstuurd. Wij reageren binnen 24 uur.';
+          } else {
+            throw new Error(data.message || 'Versturen mislukt');
+          }
+        })
+        .catch(function () {
+          status.style.color = '#8B2E2E';
+          status.innerHTML = 'Het versturen lukte niet. Mail ons direct op ' +
+            '<a href="mailto:info@vanderhamecologie.nl">info@vanderhamecologie.nl</a> of bel 06-23002037.';
+        })
+        .then(function () {
+          if (knop) { knop.disabled = false; knop.innerHTML = knopTekst; }
+        });
+    });
   });
 })();
 </script>

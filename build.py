@@ -210,6 +210,176 @@ def schrijf_redirects(bestaande_slugs):
             f.write(stub)
 
 
+# Web3Forms verstuurt de formulieren naar het adres dat in dat account staat,
+# niet naar een adres in deze code. Dezelfde sleutel zit ook in hieon.nl, dus
+# een nieuwe sleutel moet altijd op beide plekken tegelijk worden gezet.
+WEB3FORMS_KEY = "c6e48889-f227-4692-9384-7782f3069a85"
+
+# De werkzaamheden waaruit een aanvrager kan kiezen. Dit is de lijst waarmee
+# een quickscan meestal begint, van meest naar minst voorkomend.
+WERKZAAMHEDEN = [
+    "Sloop",
+    "Renovatie of verbouwing",
+    "Na-isolatie van spouw of dak",
+    "Dakwerk of gevelwerk",
+    "Nieuwbouw of aanbouw",
+    "Bomen kappen",
+    "Struweel of ander groen verwijderen",
+    "Herbestemming of functiewijziging",
+    "Grondwerk of graafwerk",
+    "Iets anders",
+]
+
+
+def aanvraagformulier_html(kop, herkomst):
+    """Het aanvraagformulier onderaan een dienstpagina.
+
+    `herkomst` gaat als verborgen veld mee, zodat in de mailbox te zien is
+    van welke pagina een aanvraag komt. Zonder JavaScript werkt het als
+    gewone POST; de opmaak van het antwoord regelt templates/base.html.
+    """
+    vakjes = "\n".join(
+        '          <label><input type="checkbox" name="werkzaamheden[]" '
+        'value="%s"> %s</label>' % (w, w)
+        for w in WERKZAAMHEDEN
+    )
+    return """
+<section class="section" id="aanvraag">
+  <div class="wrap wrap--narrow">
+    <div class="head head--center">
+      <h2>%(kop)s</h2>
+      <p>Vul in wat u van plan bent en waar. Hoe vollediger het beeld, hoe gerichter ons voorstel. Wij reageren binnen 24 uur met een vrijblijvende offerte of met een vraag als er nog iets ontbreekt.</p>
+    </div>
+
+    <form class="form" method="POST" action="https://api.web3forms.com/submit">
+      <input type="hidden" name="access_key" value="%(key)s">
+      <input type="hidden" name="subject" value="Nieuwe quickscan-aanvraag via vanderhamecologie.nl">
+      <input type="hidden" name="from_name" value="Website Van Der Ham Ecologie">
+      <input type="hidden" name="formulier" value="%(herkomst)s">
+      <input type="checkbox" class="hp" name="botcheck" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+      <div class="form__row">
+        <div class="field">
+          <label for="qs-naam">Naam</label>
+          <input id="qs-naam" name="name" type="text" autocomplete="name" required placeholder="Uw volledige naam">
+        </div>
+        <div class="field">
+          <label for="qs-email">E-mailadres</label>
+          <input id="qs-email" name="email" type="email" autocomplete="email" required placeholder="uw@email.nl">
+        </div>
+      </div>
+
+      <div class="form__row">
+        <div class="field">
+          <label for="qs-telefoon">Telefoon <span class="field__opt">(optioneel)</span></label>
+          <input id="qs-telefoon" name="phone" type="tel" autocomplete="tel" placeholder="06-12345678">
+        </div>
+        <div class="field">
+          <label for="qs-organisatie">Organisatie <span class="field__opt">(optioneel)</span></label>
+          <input id="qs-organisatie" name="organization" type="text" autocomplete="organization" placeholder="Bedrijf, gemeente of particulier">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="qs-locatie">Adres of postcode van de locatie</label>
+        <input id="qs-locatie" name="locatie" type="text" required placeholder="Straat en huisnummer, of postcode en plaats">
+        <p class="field__hint">Wij kijken vooraf naar luchtfoto's en verspreidingsdata, dus een adres scheelt een vraag heen en weer.</p>
+      </div>
+
+      <div class="form__row">
+        <div class="field">
+          <label for="qs-object">Om wat voor locatie gaat het?</label>
+          <select id="qs-object" name="type_locatie">
+            <option value="">Maak een keuze</option>
+            <option>Woning</option>
+            <option>Schuur, garage of ander bijgebouw</option>
+            <option>Bedrijfspand, kantoor of loods</option>
+            <option>Agrarisch gebouw</option>
+            <option>Tuin, erf of groenstrook</option>
+            <option>Terrein of openbare ruimte</option>
+            <option>Watergang, oever of dijk</option>
+            <option>Anders</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="qs-omvang">Omvang <span class="field__opt">(optioneel)</span></label>
+          <input id="qs-omvang" name="omvang" type="text" placeholder="Bijvoorbeeld vrijstaande woning, of 2.000 m&sup2;">
+        </div>
+      </div>
+
+      <fieldset class="field checkgroup">
+        <legend>Wat gaat u doen?</legend>
+        <div class="checkgroup__grid">
+%(vakjes)s
+        </div>
+        <p class="field__hint">Meerdere antwoorden mogelijk. Staat uw ingreep er niet bij, licht dat dan hieronder toe.</p>
+      </fieldset>
+
+      <div class="form__row">
+        <div class="field">
+          <label for="qs-start">Wanneer wilt u starten?</label>
+          <select id="qs-start" name="startmoment">
+            <option value="">Maak een keuze</option>
+            <option>Zo snel mogelijk</option>
+            <option>Binnen drie maanden</option>
+            <option>Over drie tot zes maanden</option>
+            <option>Later dan zes maanden</option>
+            <option>Nog niet bekend</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="qs-aanleiding">Wat is de aanleiding?</label>
+          <select id="qs-aanleiding" name="aanleiding">
+            <option value="">Maak een keuze</option>
+            <option>De gemeente of het bevoegd gezag vraagt erom</option>
+            <option>Het hoort bij een vergunningaanvraag</option>
+            <option>Een adviseur of aannemer adviseerde het</option>
+            <option>Ik wil het uit voorzorg laten uitzoeken</option>
+            <option>Weet ik nog niet</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="qs-bericht">Toelichting en vragen</label>
+        <textarea id="qs-bericht" name="message" required placeholder="Wat is het plan, en wat wilt u van ons weten? Heeft u al eerder ecologisch onderzoek laten doen, of loopt er een termijn waar u aan vastzit?"></textarea>
+        <p class="field__hint">Weet u al iets over de locatie, bijvoorbeeld nesten onder de dakpannen of vleermuizen in de spouw, noem dat dan hier.</p>
+      </div>
+
+      <div class="field">
+        <label class="checkline">
+          <input type="checkbox" name="privacy" required>
+          <span>Ik ga akkoord met de verwerking van mijn gegevens volgens de <a href="/privacyverklaring">privacyverklaring</a>.</span>
+        </label>
+      </div>
+
+      <div>
+        <button class="btn btn--primary" type="submit">Aanvraag versturen {{arrow}}</button>
+      </div>
+      <p class="form__note" role="status" aria-live="polite"></p>
+    </form>
+
+    <p class="form__alt">Liever niet via een formulier? Mail ons op <a href="mailto:{{email}}">{{email}}</a>, of stel eerst uw vraag via de <a href="/contact">contactpagina</a>.</p>
+  </div>
+</section>
+""" % {"kop": kop, "key": WEB3FORMS_KEY, "herkomst": herkomst, "vakjes": vakjes}
+
+
+# De blokken waarmee een pagina kan eindigen, in de volgorde waarin ze het
+# ankerpunt vormen. Een gegenereerde sectie komt hier vlak vóór, zodat de
+# afsluitende oproep of het aanvraagformulier het laatste blijft wat een
+# bezoeker ziet.
+_AFSLUITERS = ('<section class="section cta">', '<section class="section" id="aanvraag">')
+
+
+def voor_afsluiting(body, blok):
+    """Zet `blok` vlak vóór het afsluitende blok, of onderaan als dat er niet is."""
+    for anker in _AFSLUITERS:
+        if anker in body:
+            return body.replace(anker, blok + anker, 1)
+    return body + "\n" + blok
+
+
 def split_provincie_slug(slug):
     """Splitst '/huismusonderzoek-utrecht' in ('huismusonderzoek', 'utrecht')."""
     naam = slug.strip("/")
@@ -809,6 +979,15 @@ def build():
         # absoluut en de pagina komt niet in de sitemap.
         is_404 = fn == "404.html"
 
+        # {{aanvraagformulier:<kop>}} onderaan een dienstpagina. Moet vóór de
+        # provinciesecties, want die zoeken dit blok als ankerpunt.
+        herkomst = meta.get("title", SITE["name"]).split("|")[0].strip()
+        body = re.sub(
+            r'\{\{aanvraagformulier:([^}]+)\}\}',
+            lambda m: aanvraagformulier_html(m.group(1).strip(), herkomst),
+            body,
+        )
+
         # Doorverwijzing naar dezelfde dienst in de andere provincies: de oude
         # (vaak lege) kop weghalen en onderaan de lopende tekst een complete
         # lijst neerzetten.
@@ -818,12 +997,8 @@ def build():
         if hub:
             if _HUB_SECTIE.search(body):
                 body = _HUB_SECTIE.sub(lambda m: hub, body, count=1)
-            elif '<section class="section cta">' in body:
-                body = body.replace(
-                    '<section class="section cta">', hub + '<section class="section cta">', 1
-                )
             else:
-                body += "\n" + hub
+                body = voor_afsluiting(body, hub)
 
         # {{provincies:<dienst>}} op een willekeurige pagina.
         body = re.sub(
@@ -835,14 +1010,7 @@ def build():
         body = _PROV_KOP.sub("", body)
         links = provincie_links_html(slug, bestaande_slugs)
         if links:
-            # Als eigen sectie vlak vóór de afsluitende CTA, zodat de lopende
-            # tekst niet onderbroken wordt.
-            if '<section class="section cta">' in body:
-                body = body.replace(
-                    '<section class="section cta">', links + '<section class="section cta">', 1
-                )
-            else:
-                body += "\n" + links
+            body = voor_afsluiting(body, links)
         # Met afsluitende slash: GitHub Pages serveert /slug/ en stuurt /slug
         # met een 301 daarheen. Canonical, og:url en sitemap moeten de URL
         # noemen die zelf 200 geeft, anders staat de hele site in Search

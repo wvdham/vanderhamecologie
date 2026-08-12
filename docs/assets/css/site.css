@@ -62,6 +62,10 @@
 
 html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
 
+/* Een sprong naar een anker binnen de pagina moet niet onder de plakkende
+   kopbalk landen. */
+section[id] { scroll-margin-top: calc(var(--header-h) + 1.25rem); }
+
 body {
   margin: 0;
   font-family: var(--font-body);
@@ -767,7 +771,21 @@ a:hover { color: var(--green-deep); }
 .field ::placeholder { color: #6B7263; opacity: 1; }
 .field :focus-visible { outline: none; border-color: var(--green); box-shadow: 0 0 0 3px rgb(76 107 60 / .18); }
 .field__hint { margin: .4rem 0 0; font-size: .86rem; color: var(--ink-soft); }
+.field__opt { font-weight: 400; color: var(--ink-soft); }
 .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+/* Aankruisvelden: de basisregel hierboven zet elk input op volle breedte,
+   dus vakjes krijgen hier expliciet hun eigen maat terug. */
+.checkgroup { border: 0; padding: 0; margin: 0; min-width: 0; }
+.checkgroup > legend { padding: 0; font-size: .93rem; font-weight: 600; margin-bottom: .55rem; }
+.checkgroup__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: .55rem 1.15rem; }
+.checkgroup label,
+.field > label.checkline { display: flex; gap: .6rem; align-items: flex-start; font-size: .96rem; font-weight: 400; line-height: 1.45; cursor: pointer; margin-bottom: 0; }
+.checkgroup input[type="checkbox"],
+.checkline input[type="checkbox"] { width: auto; flex: none; margin-top: .25rem; padding: 0; accent-color: var(--green); }
+
+.form__note { margin: 0; font-size: .93rem; }
+.form__alt { margin: 1.5rem 0 0; font-size: .93rem; color: var(--ink-soft); text-align: center; }
 
 .contactlist { display: grid; gap: 1.4rem; margin: 0; }
 .contactlist dt { font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--green); margin-bottom: .25rem; }
