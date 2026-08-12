@@ -162,6 +162,50 @@ PROVINCIE_DIENSTEN = {
     "ecologisch-advies": "Ecologisch advies",
 }
 
+# Oude URL's van de vorige sitegenerator waar nog zoekverkeer op staat.
+# Een statische host kent geen serverredirects: een pagina hernoemen zonder
+# doorverwijzing is een stille verwijdering. Voor elke oude slug schrijft de
+# bouw daarom een minimale doorverwijsstub in docs/. De stubs komen bewust
+# niet in de sitemap en niet in de navigatie of provincielijsten terecht.
+REDIRECTS = {
+    "/ecologische-begeleiding-bouw": "/ecologische-begeleiding/",
+    "/natuuronderzoek-bouwen-verbouwen": "/quickscan-flora-en-fauna/",
+    "/vdhe": "/",
+}
+
+
+def schrijf_redirects(bestaande_slugs):
+    """Schrijft voor elke oude slug een doorverwijsstub naar het nieuwe adres.
+
+    Kaal en zonder sitechrome of statistiek: de meta-refresh stuurt de
+    bezoeker meteen door, de zichtbare link is het vangnet voor wie niet
+    automatisch doorgaat, en de canonical wijst zoekmachines naar het doel.
+    """
+    for oud, doel in REDIRECTS.items():
+        if oud in bestaande_slugs:
+            print("let op: redirect %s botst met een bestaande pagina, overgeslagen" % oud)
+            continue
+        doel_url = SITE["url"] + doel
+        stub = (
+            "<!doctype html>\n"
+            '<html lang="nl">\n'
+            "<head>\n"
+            '<meta charset="utf-8">\n'
+            '<meta http-equiv="refresh" content="0; url=%(url)s">\n'
+            '<link rel="canonical" href="%(url)s">\n'
+            "<title>Doorverwijzing | Van Der Ham Ecologie</title>\n"
+            "</head>\n"
+            "<body>\n"
+            '<p>Deze pagina is verhuisd. U vindt de informatie op '
+            '<a href="%(url)s">%(url)s</a>.</p>\n'
+            "</body>\n"
+            "</html>\n"
+        ) % {"url": doel_url}
+        stubmap = os.path.join(OUT, oud.strip("/"))
+        os.makedirs(stubmap, exist_ok=True)
+        with open(os.path.join(stubmap, "index.html"), "w", encoding="utf-8") as f:
+            f.write(stub)
+
 
 def split_provincie_slug(slug):
     """Splitst '/huismusonderzoek-utrecht' in ('huismusonderzoek', 'utrecht')."""
@@ -883,6 +927,10 @@ def build():
         with open(os.path.join(target, "index.html"), "w", encoding="utf-8") as f:
             f.write(html)
         pages.append((url, meta.get("priority", "0.7")))
+
+    # Doorverwijsstubs voor oude URL's; bewust niet in `pages`, dus ook
+    # niet in de sitemap.
+    schrijf_redirects(bestaande_slugs)
 
     # sitemap.xml
     today = date.today().isoformat()
