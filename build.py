@@ -170,6 +170,10 @@ REDIRECTS = {
     "/ecologische-begeleiding-bouw": "/ecologische-begeleiding/",
     "/natuuronderzoek-bouwen-verbouwen": "/quickscan-flora-en-fauna/",
     "/vdhe": "/",
+    # /projects was "Naast mijn werk" (Invested Birding, Natuurspeld, Big Week)
+    # en is op 12 augustus 2026 opgeheven: te persoonlijk voor hoe het bedrijf
+    # nu naar buiten treedt. Doel is /projecten, de zakelijke referentiepagina.
+    "/projects": "/projecten/",
 }
 
 

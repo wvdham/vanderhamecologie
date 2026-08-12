@@ -608,12 +608,15 @@ a:hover { color: var(--green-deep); }
   transition: transform .35s var(--ease), box-shadow .35s var(--ease);
 }
 .path:hover { transform: translateY(-4px); box-shadow: 0 22px 45px -20px rgb(27 32 22 / .3); color: inherit; }
+.path h3 { font-size: clamp(1.3rem, 1.1rem + .8vw, 1.65rem); }
+.path p { color: var(--ink-soft); margin-bottom: 1.1rem; }
+/* De varianten staan bewust ná .path p: gelijke specificiteit, dus de
+   laatste regel wint. Andersom kreeg de donkere kaart de donkere
+   tekstkleur en viel de tekst weg tegen het groen. */
 .path--a { background: var(--cream); }
 .path--b { background: var(--green-dark); color: var(--ink-onDark); }
 .path--b p { color: var(--ink-onDark-soft); }
 .path--b .arrowlink { color: var(--green-bright); }
-.path h3 { font-size: clamp(1.3rem, 1.1rem + .8vw, 1.65rem); }
-.path p { color: var(--ink-soft); margin-bottom: 1.1rem; }
 
 /* ---------- fotobalk ---------- */
 
