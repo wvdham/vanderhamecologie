@@ -548,6 +548,10 @@ a:hover { color: var(--green-deep); }
 .band h3 { color: var(--ink-onDark); margin-bottom: .35em; }
 .band p { color: var(--ink-onDark-soft); margin: 0; }
 .band p + p { margin-top: .6em; }
+/* Links in een band staan op --green-dark; de standaard linkkleur haalt daar
+   maar 2,5:1. Zelfde oplossing als .section--deep a, die komt op 6,1:1. */
+.band a { color: var(--green-bright); }
+.band a:hover { color: var(--green-soft); }
 
 /* ---------- dienstenregister ---------- */
 
