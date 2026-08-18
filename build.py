@@ -162,6 +162,18 @@ PROVINCIE_DIENSTEN = {
     "ecologisch-advies": "Ecologisch advies",
 }
 
+# Stadspagina's onder ecologisch-onderzoek-<stad>. Losse pagina's naast de
+# provinciereeks, omdat de zoekvraag "ecologisch onderzoek <stad>" op de
+# provinciepagina bleef hangen. Nieuwe stad toevoegen is een regel hier plus
+# een contentbestand; de Service-markup volgt dan vanzelf.
+STEDEN = [
+    ("den-bosch", "'s-Hertogenbosch"),
+    ("breda", "Breda"),
+    ("oss", "Oss"),
+    ("roosendaal", "Roosendaal"),
+]
+STAD_PREFIX = "ecologisch-onderzoek-"
+
 # Oude URL's van de vorige sitegenerator waar nog zoekverkeer op staat.
 # Een statische host kent geen serverredirects: een pagina hernoemen zonder
 # doorverwijzing is een stille verwijdering. Voor elke oude slug schrijft de
@@ -293,6 +305,10 @@ def aanvraag_kop(slug):
         naam = dict(PROVINCIES)[provincie]
         kort = PROVINCIE_DIENSTEN.get(dienst) or label or "Ecologisch onderzoek"
         kop = "%s aanvragen in %s" % (kort, naam)
+    else:
+        stad = split_stad_slug(slug)
+        if stad:
+            kop = "Ecologisch onderzoek aanvragen in %s" % stad
     return kop
 
 
@@ -489,6 +505,18 @@ def split_provincie_slug(slug):
             if dienst in PROVINCIE_DIENSTEN:
                 return dienst, suffix
     return None, None
+
+
+def split_stad_slug(slug):
+    """Geeft de stadsnaam bij '/ecologisch-onderzoek-breda', anders None."""
+    naam = slug.strip("/")
+    if not naam.startswith(STAD_PREFIX):
+        return None
+    rest = naam[len(STAD_PREFIX):]
+    for suffix, label in STEDEN:
+        if rest == suffix:
+            return label
+    return None
 
 
 def provincie_links_html(slug, bestaande_slugs):
@@ -924,6 +952,9 @@ def service_ld(meta, url, slug):
         naam = PROVINCIE_DIENSTEN[dienst]
         gebied = {"@type": "State",
                   "name": dict(PROVINCIES)[provincie]}
+    elif split_stad_slug(slug):
+        naam = "Ecologisch onderzoek"
+        gebied = {"@type": "City", "name": split_stad_slug(slug)}
     elif slug in DIENST_SLUGS:
         naam = re.sub(r"&amp;", "en", DIENST_SLUGS[slug])
         gebied = {"@type": "Country", "name": "Nederland"}
