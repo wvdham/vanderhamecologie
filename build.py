@@ -1076,6 +1076,7 @@ def schema_ld(meta, url):
 "description":"Ecologisch adviesbureau voor quickscans flora en fauna, soortgericht onderzoek en ecologische begeleiding.",
 "address":{"@type":"PostalAddress","streetAddress":"%(street)s","postalCode":"%(postcode)s","addressLocality":"%(city)s","addressCountry":"NL"},
 "vatID":"%(btw)s","areaServed":{"@type":"Country","name":"Nederland"},
+"sameAs":["https://www.linkedin.com/company/van-der-ham-ecologie/"],
 "identifier":{"@type":"PropertyValue","name":"KVK","value":"%(kvk)s"},
 "founder":{"@type":"Person","name":"W. van der Ham","sameAs":"https://www.linkedin.com/in/wouter-van-der-ham-ba6057106"},
 "knowsAbout":["Quickscan flora en fauna","Vleermuisonderzoek","Omgevingswet","Natura 2000","Soortenmanagementplan"]}
