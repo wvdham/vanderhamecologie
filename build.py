@@ -1045,6 +1045,8 @@ def schema_ld(meta, url):
 "description":"Ecologisch adviesbureau voor quickscans flora en fauna, soortgericht onderzoek en ecologische begeleiding.",
 "address":{"@type":"PostalAddress","streetAddress":"%(street)s","postalCode":"%(postcode)s","addressLocality":"%(city)s","addressCountry":"NL"},
 "vatID":"%(btw)s","areaServed":{"@type":"Country","name":"Nederland"},
+"identifier":{"@type":"PropertyValue","name":"KVK","value":"%(kvk)s"},
+"founder":{"@type":"Person","name":"W. van der Ham"},
 "knowsAbout":["Quickscan flora en fauna","Vleermuisonderzoek","Omgevingswet","Natura 2000","Soortenmanagementplan"]}
 </script>""" % dict(SITE, url=SITE["url"])
     return ""
