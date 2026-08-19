@@ -872,7 +872,12 @@ def breadcrumb_ld(body, url):
     items = []
     for href, label in _CRUMB_LINK.findall(inner):
         naam = _TAGS.sub("", label).strip()
-        pad = SITE["url"] if href == "/" else SITE["url"] + "/" + href.strip("/")
+        # Met dezelfde afsluitende slash als de canonical. Zonder die slash
+        # noemt de structured data een adres dat 301'et, en meldt Search
+        # Console de kruimelpagina's als "pagina met omleiding".
+        pad = SITE["url"] + "/" + href.strip("/")
+        if not pad.endswith("/") and "." not in pad.rsplit("/", 1)[-1]:
+            pad += "/"
         items.append((naam, pad))
 
     # De huidige pagina staat als platte tekst achter de laatste link, met het
