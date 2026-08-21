@@ -326,6 +326,9 @@ def dienstkeuze_html(slug):
         regels.append("            </optgroup>")
     leeg = "" if huidig else " selected"
     regels.insert(0, '            <option value=""%s>Maak een keuze</option>' % leeg)
+    regels.append(
+        "            <option>Dieren in of aan mijn gebouw, zonder bouwplan</option>"
+    )
     regels.append("            <option>Weet ik nog niet</option>")
     return "\n".join(regels)
 
@@ -453,7 +456,7 @@ def aanvraagformulier_html(kop, herkomst, slug):
       <div class="field">
         <label for="qs-bericht">Toelichting en vragen</label>
         <textarea id="qs-bericht" name="message" required placeholder="Wat is het plan, en wat wilt u van ons weten? Heeft u al eerder ecologisch onderzoek laten doen, of loopt er een termijn waar u aan vastzit?"></textarea>
-        <p class="field__hint">Weet u al iets over de locatie, bijvoorbeeld nesten onder de dakpannen of vleermuizen in de spouw, noem dat dan hier.</p>
+        <p class="field__hint">Weet u al iets over de locatie, bijvoorbeeld nesten onder de dakpannen of vleermuizen in de spouw, noem dat dan hier. Heeft u al een rapport, tekeningen of correspondentie met de gemeente, mail die dan naar info@vanderhamecologie.nl onder vermelding van uw naam. Dat scheelt een ronde en maakt ons voorstel meteen concreet.</p>
       </div>
 
       <div class="field">
