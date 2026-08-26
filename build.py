@@ -190,6 +190,13 @@ REDIRECTS = {
     # /services was de enige Engelse slug op een verder Nederlandse site, terwijl
     # de zoekterm "diensten" is. Omgezet op 12 augustus 2026.
     "/services": "/diensten/",
+    # /ecologisch-adviesbureau is een adres van vóór de overstap naar deze
+    # generator; het komt in de git-geschiedenis niet voor. Google toont het
+    # nog steeds: 146 vertoningen en 2 klikken in de 28 dagen tot 24 augustus
+    # 2026, op positie 52, allemaal naar een harde 404. De zoekopdrachten die
+    # erop landen zijn "ecologisch adviesbureau <plaats>", dus de homepage is
+    # de dichtstbijzijnde levende pagina. Gevonden op 26 augustus 2026.
+    "/ecologisch-adviesbureau": "/",
 }
 
 
