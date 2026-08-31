@@ -166,12 +166,50 @@ PROVINCIE_DIENSTEN = {
 # provinciereeks, omdat de zoekvraag "ecologisch onderzoek <stad>" op de
 # provinciepagina bleef hangen. Nieuwe stad toevoegen is een regel hier plus
 # een contentbestand; de Service-markup volgt dan vanzelf.
+# Stads- en streekpagina's onder /ecologisch-onderzoek-<slug>.
+#
+# Deze lijst voedt split_stad_slug en daarmee het Service-schema met de plaats
+# als areaServed. Hij is tot 31 augustus 2026 blijven staan op de vier steden
+# van het eerste uur, terwijl er zestien pagina's bij waren gekomen: die
+# misten hun Service-markup zonder dat iets dat meldde. Een lijst met vaste
+# waarden veroudert stiller dan een werkwijze, want een ontbrekende regel
+# levert geen fout op. Komt er een pagina bij, vul hem hier in dezelfde ronde
+# aan; de lint-sweep controleert het sindsdien.
 STEDEN = [
-    ("den-bosch", "'s-Hertogenbosch"),
+    ("alkmaar", "Alkmaar"),
+    ("apeldoorn", "Apeldoorn"),
+    ("arnhem", "Arnhem"),
+    ("assen", "Assen"),
     ("breda", "Breda"),
+    ("den-bosch", "'s-Hertogenbosch"),
+    ("den-haag", "Den Haag"),
+    ("den-helder", "Den Helder"),
+    ("eindhoven", "Eindhoven"),
+    ("haarlem", "Haarlem"),
+    ("heerlen", "Heerlen"),
+    ("hilversum", "Hilversum"),
+    ("leiden", "Leiden"),
+    ("lelystad", "Lelystad"),
+    ("nijmegen", "Nijmegen"),
     ("oss", "Oss"),
+    ("purmerend", "Purmerend"),
     ("roosendaal", "Roosendaal"),
+    ("rotterdam", "Rotterdam"),
+    ("zoetermeer", "Zoetermeer"),
 ]
+# Streken zijn geen City in schema.org-termen; die krijgen AdministrativeArea.
+STREKEN = [
+    ("achterhoek", "Achterhoek"),
+    ("brabantse-wal", "Brabantse Wal"),
+    ("salland", "Salland"),
+    ("twente", "Twente"),
+    ("zuid-limburg", "Zuid-Limburg"),
+]
+# Voorzetsel plus lidwoord in lopende tekst. Wat hier niet in staat krijgt "in".
+STREEK_AANHEF = {
+    "Achterhoek": "in de",
+    "Brabantse Wal": "op de",
+}
 STAD_PREFIX = "ecologisch-onderzoek-"
 
 # Oude URL's van de vorige sitegenerator waar nog zoekverkeer op staat.
@@ -313,9 +351,13 @@ def aanvraag_kop(slug):
         kort = PROVINCIE_DIENSTEN.get(dienst) or label or "Ecologisch onderzoek"
         kop = "%s aanvragen in %s" % (kort, naam)
     else:
-        stad = split_stad_slug(slug)
-        if stad:
-            kop = "Ecologisch onderzoek aanvragen in %s" % stad
+        plaats = split_stad_slug(slug)
+        if plaats:
+            # Streeknamen dragen een lidwoord ("in de Achterhoek", "op de
+            # Brabantse Wal"), stadsnamen niet. Zonder die uitzondering staat
+            # er "in Achterhoek", en dat leest als een vertaalfout.
+            kop = "Ecologisch onderzoek aanvragen %s %s" % (
+                STREEK_AANHEF.get(plaats[0], "in"), plaats[0])
     return kop
 
 
@@ -518,14 +560,20 @@ def split_provincie_slug(slug):
 
 
 def split_stad_slug(slug):
-    """Geeft de stadsnaam bij '/ecologisch-onderzoek-breda', anders None."""
+    """Geeft (naam, schema-type) bij '/ecologisch-onderzoek-breda', anders None.
+
+    Steden krijgen City, streken AdministrativeArea.
+    """
     naam = slug.strip("/")
     if not naam.startswith(STAD_PREFIX):
         return None
     rest = naam[len(STAD_PREFIX):]
     for suffix, label in STEDEN:
         if rest == suffix:
-            return label
+            return (label, "City")
+    for suffix, label in STREKEN:
+        if rest == suffix:
+            return (label, "AdministrativeArea")
     return None
 
 
@@ -968,8 +1016,9 @@ def service_ld(meta, url, slug):
         gebied = {"@type": "State",
                   "name": dict(PROVINCIES)[provincie]}
     elif split_stad_slug(slug):
+        plaats, soort = split_stad_slug(slug)
         naam = "Ecologisch onderzoek"
-        gebied = {"@type": "City", "name": split_stad_slug(slug)}
+        gebied = {"@type": soort, "name": plaats}
     elif slug in DIENST_SLUGS:
         naam = re.sub(r"&amp;", "en", DIENST_SLUGS[slug])
         gebied = {"@type": "Country", "name": "Nederland"}
@@ -1339,6 +1388,21 @@ def build():
     missing = [u for u, *_ in pages if "  " in u]
     if missing:
         print("let op:", missing)
+
+    # STEDEN en STREKEN zijn registers van vaste waarden, en die verouderen
+    # stiller dan code: een ontbrekende regel geeft geen fout, alleen een
+    # pagina zonder Service-schema. Op 31 augustus 2026 misten zestien
+    # stads- en streekpagina's daardoor hun markup. Vandaar deze zelfcontrole.
+    bekend = {s for s, _ in STEDEN} | {s for s, _ in STREKEN}
+    aanwezig = {n[len(STAD_PREFIX):] for n in
+                (os.path.splitext(f)[0] for f in os.listdir(CONTENT))
+                if n.startswith(STAD_PREFIX)}
+    if aanwezig - bekend:
+        print("let op: niet in STEDEN of STREKEN, dus zonder Service-schema:",
+              ", ".join(sorted(aanwezig - bekend)))
+    if bekend - aanwezig:
+        print("let op: in STEDEN of STREKEN maar geen contentbestand:",
+              ", ".join(sorted(bekend - aanwezig)))
 
 
 if __name__ == "__main__":
