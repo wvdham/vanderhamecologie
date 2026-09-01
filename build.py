@@ -177,6 +177,7 @@ PROVINCIE_DIENSTEN = {
 # aan; de lint-sweep controleert het sindsdien.
 STEDEN = [
     ("alkmaar", "Alkmaar"),
+    ("amersfoort", "Amersfoort"),
     ("apeldoorn", "Apeldoorn"),
     ("arnhem", "Arnhem"),
     ("assen", "Assen"),
@@ -185,6 +186,7 @@ STEDEN = [
     ("den-haag", "Den Haag"),
     ("den-helder", "Den Helder"),
     ("eindhoven", "Eindhoven"),
+    ("emmen", "Emmen"),
     ("haarlem", "Haarlem"),
     ("heerlen", "Heerlen"),
     ("hilversum", "Hilversum"),
@@ -195,6 +197,7 @@ STEDEN = [
     ("purmerend", "Purmerend"),
     ("roosendaal", "Roosendaal"),
     ("rotterdam", "Rotterdam"),
+    ("tilburg", "Tilburg"),
     ("zoetermeer", "Zoetermeer"),
 ]
 # Streken zijn geen City in schema.org-termen; die krijgen AdministrativeArea.
@@ -211,6 +214,45 @@ STREEK_AANHEF = {
     "Brabantse Wal": "op de",
 }
 STAD_PREFIX = "ecologisch-onderzoek-"
+
+# In welke provincie een stad of streek ligt. Voedt het {{buren}}-blok, dat
+# elke stadspagina naar zijn buren in dezelfde provincie laat wijzen.
+# Aanleiding: op 1 september 2026 bleek dat de provinciepagina's 17 tot 19
+# inkomende interne links hadden en de stadspagina's 2 tot 6, en dat de
+# provinciepagina daardoor de zoekopdracht van zijn eigen stadspagina won
+# (Arnhem 23 vertoningen tegen 2 over 28 dagen). Onderlinge links tussen de
+# stadspagina's zijn de goedkoopste correctie daarop. Een handmatige lijst
+# veroudert stil, dus build() controleert hem bij elke bouw in twee richtingen.
+STAD_PROVINCIE = {
+    "alkmaar": "noord-holland",
+    "amersfoort": "utrecht",
+    "apeldoorn": "gelderland",
+    "arnhem": "gelderland",
+    "assen": "drenthe",
+    "breda": "noord-brabant",
+    "den-bosch": "noord-brabant",
+    "den-haag": "zuid-holland",
+    "den-helder": "noord-holland",
+    "eindhoven": "noord-brabant",
+    "emmen": "drenthe",
+    "haarlem": "noord-holland",
+    "heerlen": "limburg",
+    "hilversum": "noord-holland",
+    "leiden": "zuid-holland",
+    "lelystad": "flevoland",
+    "nijmegen": "gelderland",
+    "oss": "noord-brabant",
+    "purmerend": "noord-holland",
+    "roosendaal": "noord-brabant",
+    "rotterdam": "zuid-holland",
+    "tilburg": "noord-brabant",
+    "zoetermeer": "zuid-holland",
+    "achterhoek": "gelderland",
+    "brabantse-wal": "noord-brabant",
+    "salland": "overijssel",
+    "twente": "overijssel",
+    "zuid-limburg": "limburg",
+}
 
 # Oude URL's van de vorige sitegenerator waar nog zoekverkeer op staat.
 # Een statische host kent geen serverredirects: een pagina hernoemen zonder
@@ -575,6 +617,38 @@ def split_stad_slug(slug):
         if rest == suffix:
             return (label, "AdministrativeArea")
     return None
+
+
+def buren_html(slug, bestaande_slugs):
+    """Blok met de andere stads- en streekpagina's in dezelfde provincie.
+
+    Geeft "" wanneer de pagina geen stad of streek is, of wanneer hij de
+    enige in zijn provincie is; dan komt er dus geen lege kop te staan.
+    """
+    naam = slug.strip("/")
+    if not naam.startswith(STAD_PREFIX):
+        return ""
+    rest = naam[len(STAD_PREFIX):]
+    prov = STAD_PROVINCIE.get(rest)
+    if not prov:
+        return ""
+    labels = dict(STEDEN) | dict(STREKEN)
+    aanhef = dict(STREEK_AANHEF)
+    buren = sorted(
+        (labels[s], s) for s in STAD_PROVINCIE
+        if STAD_PROVINCIE[s] == prov and s != rest
+        and "/" + STAD_PREFIX + s in bestaande_slugs and s in labels
+    )
+    if not buren:
+        return ""
+    provincie_naam = dict(PROVINCIES)[prov]
+    links = " ".join(
+        '<a href="/%s%s/">Ecologisch onderzoek %s %s</a>'
+        % (STAD_PREFIX, s, aanhef.get(label, "in"), label)
+        for label, s in buren
+    )
+    return ("      <h2>Andere plaatsen in %s</h2>\n      <p>%s</p>"
+            % (provincie_naam, links))
 
 
 def provincie_links_html(slug, bestaande_slugs):
@@ -1242,6 +1316,9 @@ def build():
             else:
                 body = voor_afsluiting(body, hub)
 
+        # {{buren}}: de andere stads- en streekpagina's in dezelfde provincie.
+        body = body.replace("{{buren}}", buren_html(slug, bestaande_slugs))
+
         # {{provincies:<dienst>}} op een willekeurige pagina.
         body = re.sub(
             r'\{\{provincies:([a-z-]+)\}\}',
@@ -1403,6 +1480,12 @@ def build():
     if bekend - aanwezig:
         print("let op: in STEDEN of STREKEN maar geen contentbestand:",
               ", ".join(sorted(bekend - aanwezig)))
+    if bekend - set(STAD_PROVINCIE):
+        print("let op: geen provincie in STAD_PROVINCIE, dus geen buren-blok:",
+              ", ".join(sorted(bekend - set(STAD_PROVINCIE))))
+    if set(STAD_PROVINCIE) - bekend:
+        print("let op: in STAD_PROVINCIE maar niet in STEDEN of STREKEN:",
+              ", ".join(sorted(set(STAD_PROVINCIE) - bekend)))
 
 
 if __name__ == "__main__":
