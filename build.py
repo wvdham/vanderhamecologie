@@ -177,11 +177,13 @@ PROVINCIE_DIENSTEN = {
 # aan; de lint-sweep controleert het sindsdien.
 STEDEN = [
     ("alkmaar", "Alkmaar"),
+    ("almere", "Almere"),
     ("amersfoort", "Amersfoort"),
     ("apeldoorn", "Apeldoorn"),
     ("arnhem", "Arnhem"),
     ("assen", "Assen"),
     ("breda", "Breda"),
+    ("capelle-aan-den-ijssel", "Capelle aan den IJssel"),
     ("den-bosch", "'s-Hertogenbosch"),
     ("den-haag", "Den Haag"),
     ("den-helder", "Den Helder"),
@@ -198,6 +200,7 @@ STEDEN = [
     ("roosendaal", "Roosendaal"),
     ("rotterdam", "Rotterdam"),
     ("tilburg", "Tilburg"),
+    ("zaandam", "Zaandam"),
     ("zoetermeer", "Zoetermeer"),
 ]
 # Streken zijn geen City in schema.org-termen; die krijgen AdministrativeArea.
@@ -225,11 +228,13 @@ STAD_PREFIX = "ecologisch-onderzoek-"
 # veroudert stil, dus build() controleert hem bij elke bouw in twee richtingen.
 STAD_PROVINCIE = {
     "alkmaar": "noord-holland",
+    "almere": "flevoland",
     "amersfoort": "utrecht",
     "apeldoorn": "gelderland",
     "arnhem": "gelderland",
     "assen": "drenthe",
     "breda": "noord-brabant",
+    "capelle-aan-den-ijssel": "zuid-holland",
     "den-bosch": "noord-brabant",
     "den-haag": "zuid-holland",
     "den-helder": "noord-holland",
@@ -246,6 +251,7 @@ STAD_PROVINCIE = {
     "roosendaal": "noord-brabant",
     "rotterdam": "zuid-holland",
     "tilburg": "noord-brabant",
+    "zaandam": "noord-holland",
     "zoetermeer": "zuid-holland",
     "achterhoek": "gelderland",
     "brabantse-wal": "noord-brabant",
