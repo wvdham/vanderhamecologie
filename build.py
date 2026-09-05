@@ -193,17 +193,20 @@ STEDEN = [
     ("haarlem", "Haarlem"),
     ("heerhugowaard", "Heerhugowaard"),
     ("heerlen", "Heerlen"),
+    ("hengelo", "Hengelo"),
     ("hilversum", "Hilversum"),
     ("hoofddorp", "Hoofddorp"),
     ("hoorn", "Hoorn"),
     ("leiden", "Leiden"),
     ("lelystad", "Lelystad"),
+    ("maastricht", "Maastricht"),
     ("nijmegen", "Nijmegen"),
     ("oss", "Oss"),
     ("purmerend", "Purmerend"),
     ("roosendaal", "Roosendaal"),
     ("rotterdam", "Rotterdam"),
     ("tilburg", "Tilburg"),
+    ("weert", "Weert"),
     ("zaandam", "Zaandam"),
     ("zoetermeer", "Zoetermeer"),
 ]
@@ -249,17 +252,20 @@ STAD_PROVINCIE = {
     "haarlem": "noord-holland",
     "heerhugowaard": "noord-holland",
     "heerlen": "limburg",
+    "hengelo": "overijssel",
     "hilversum": "noord-holland",
     "hoofddorp": "noord-holland",
     "hoorn": "noord-holland",
     "leiden": "zuid-holland",
     "lelystad": "flevoland",
+    "maastricht": "limburg",
     "nijmegen": "gelderland",
     "oss": "noord-brabant",
     "purmerend": "noord-holland",
     "roosendaal": "noord-brabant",
     "rotterdam": "zuid-holland",
     "tilburg": "noord-brabant",
+    "weert": "limburg",
     "zaandam": "noord-holland",
     "zoetermeer": "zuid-holland",
     "achterhoek": "gelderland",
@@ -928,6 +934,12 @@ def footer_html():
           <div>
             <h4>Voor wie</h4>
             <ul>%(doelgroep)s<li><a href="https://hieon.nl">HIEON: heb ik onderzoek nodig?</a></li></ul>
+            <h4 style="margin-top:26px">Over ons</h4>
+            <ul>
+              <li><a href="/about">Over Van Der Ham Ecologie</a></li>
+              <li><a href="/wouter-van-der-ham">Wouter van der Ham, de ecoloog</a></li>
+              <li><a href="/projecten">Uitgevoerde projecten</a></li>
+            </ul>
             <h4 style="margin-top:26px">Contact</h4>
             <ul>
               <li><a href="mailto:%(email)s">%(email)s</a></li>
